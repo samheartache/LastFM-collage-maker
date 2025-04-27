@@ -1,6 +1,8 @@
 from pprint import pprint
 import time
 import base64
+import math
+import os
 
 import requests
 from bs4 import BeautifulSoup
@@ -16,6 +18,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+from PIL import Image
+
 from test_data import albums
 
 
@@ -25,6 +29,7 @@ class LastFM:
         self.username = username
         self.password = password
         self.quantity = quantity
+        self.saved_images = []
 
         self.driver = self.initialize_driver()
 
@@ -111,6 +116,9 @@ class LastFM:
     
     def get_album_covers(self, albums):
         driver = self.driver
+        covers_dir = 'covers'
+        os.makedirs(covers_dir, exist_ok=True)
+        
         for album in albums:
 
             driver.get('https://images.google.com/')
@@ -123,11 +131,54 @@ class LastFM:
             img = div_s.find_element(By.TAG_NAME, 'img')
             image_url = img.get_attribute('src')
 
-            header, encoded = image_url.split(',', 1)
-            image_data = base64.b64decode(encoded)
+            try:
+                header, encoded = image_url.split(',', 1)
+                image_data = base64.b64decode(encoded)
 
-            with open('image.jpg', 'wb') as f:
-                f.write(image_data)
+                safe_album_name = album.replace('/', '_').replace('\\', '_')  # чтобы имена файлов были корректными
+                image_path = os.path.join(covers_dir, f'{safe_album_name}.jpg')
+                
+                with open(image_path, 'wb') as f:
+                    f.write(image_data)
+
+                self.saved_images.append(image_path)
+            
+            except Exception as e:
+                print(f'Error during processing {album}: {e}')
+        
+        self.make_collage()
+    
+    def make_collage(self, collage_path='collage.jpg', collage_width=1200, margin=10):
+        if not self.saved_images:
+            print('No images to make collage of')
+            return
+
+        images = [Image.open(path) for path in self.saved_images]
+
+        img_width, img_height = images[0].size
+        num_images = len(images)
+
+        cols = int(math.sqrt(num_images))
+        rows = math.ceil(num_images / cols)
+
+        thumbnail_width = (collage_width - margin * (cols + 1)) // cols
+        thumbnail_height = int(thumbnail_width * img_height / img_width)
+        collage_height = thumbnail_height * rows + margin * (rows + 1)
+
+        collage_image = Image.new('RGB', (collage_width, collage_height), color='white')
+
+        x = margin
+        y = margin
+
+        for idx, img in enumerate(images):
+            img = img.resize((thumbnail_width, thumbnail_height))
+            collage_image.paste(img, (x, y))
+            x += thumbnail_width + margin
+            if (idx + 1) % cols == 0:
+                x = margin
+                y += thumbnail_height + margin
+
+        collage_image.save(collage_path)
 
 
 if __name__ == '__main__':
