@@ -21,6 +21,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from PIL import Image
 
 from test_data import albums
+from utils import remove_similar_strings
 
 
 class LastFM:
@@ -29,7 +30,7 @@ class LastFM:
         self.username = username
         self.password = password
         self.quantity = quantity
-        self.saved_images = []
+        self.saved_images = [os.path.join('covers', filename) for filename in os.listdir('covers')]
 
         self.driver = self.initialize_driver()
 
@@ -135,7 +136,7 @@ class LastFM:
                 header, encoded = image_url.split(',', 1)
                 image_data = base64.b64decode(encoded)
 
-                safe_album_name = album.replace('/', '_').replace('\\', '_')  # чтобы имена файлов были корректными
+                safe_album_name = album.replace('/', '_').replace('\\', '_')
                 image_path = os.path.join(covers_dir, f'{safe_album_name}.jpg')
                 
                 with open(image_path, 'wb') as f:
@@ -148,42 +149,53 @@ class LastFM:
         
         self.make_collage()
     
-    def make_collage(self, collage_path='collage.jpg', collage_width=1200, margin=10):
+    def make_collage(self, collage_path='collage.jpg', collage_size=1200, margin=0):
         if not self.saved_images:
             print('No images to make collage of')
             return
+        
+        print(len(self.saved_images))
+        self.saved_images = remove_similar_strings(self.saved_images, 0.7)
+        print(len(self.saved_images))
 
         images = [Image.open(path) for path in self.saved_images]
 
-        img_width, img_height = images[0].size
         num_images = len(images)
-
         cols = int(math.sqrt(num_images))
         rows = math.ceil(num_images / cols)
 
-        thumbnail_width = (collage_width - margin * (cols + 1)) // cols
-        thumbnail_height = int(thumbnail_width * img_height / img_width)
-        collage_height = thumbnail_height * rows + margin * (rows + 1)
+        thumb_size = collage_size // max(cols, rows)
 
-        collage_image = Image.new('RGB', (collage_width, collage_height), color='white')
+        collage_image = Image.new('RGB', (thumb_size * cols, thumb_size * rows), color='white')
+
+        def crop_center(img):
+            width, height = img.size
+            new_side = min(width, height)
+            left = (width - new_side) // 2
+            top = (height - new_side) // 2
+            right = (width + new_side) // 2
+            bottom = (height + new_side) // 2
+            return img.crop((left, top, right, bottom))
 
         x = margin
         y = margin
 
         for idx, img in enumerate(images):
-            img = img.resize((thumbnail_width, thumbnail_height))
-            collage_image.paste(img, (x, y))
-            x += thumbnail_width + margin
-            if (idx + 1) % cols == 0:
-                x = margin
-                y += thumbnail_height + margin
+            img = crop_center(img)
+            img = img.resize((thumb_size, thumb_size), Image.LANCZOS)
+            collage_image.paste(img, (x * thumb_size, y * thumb_size))
+
+            x += 1
+            if x >= cols:
+                x = 0
+                y += 1
 
         collage_image.save(collage_path)
 
 
 if __name__ == '__main__':
-    username = input()
-    password = input()
+    username = 'test'
+    password = 'test'
     parser = LastFM(username, password, 3)
-    parser.get_album_covers(albums=albums)
+    parser.make_collage()
 
