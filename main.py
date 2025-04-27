@@ -1,5 +1,6 @@
 from pprint import pprint
 import time
+import base64
 
 import requests
 from bs4 import BeautifulSoup
@@ -8,9 +9,14 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+from test_data import albums
 
 
 class LastFM:
@@ -21,7 +27,6 @@ class LastFM:
         self.quantity = quantity
 
         self.driver = self.initialize_driver()
-        self.authorize()
 
     def initialize_driver(self, is_headless=False):
         chrome_options = Options()
@@ -103,10 +108,31 @@ class LastFM:
         links = [a.get_attribute('href') for a in a_elements]
 
         return links
+    
+    def get_album_covers(self, albums):
+        driver = self.driver
+        for album in albums:
+
+            driver.get('https://images.google.com/')
+            search_input = driver.find_element(By.NAME, 'q')
+            search_input.send_keys(album)
+            search_input.send_keys(Keys.RETURN)
+            time.sleep(5)
+
+            div_s = driver.find_element(By.ID, 'search')
+            img = div_s.find_element(By.TAG_NAME, 'img')
+            image_url = img.get_attribute('src')
+
+            header, encoded = image_url.split(',', 1)
+            image_data = base64.b64decode(encoded)
+
+            with open('image.jpg', 'wb') as f:
+                f.write(image_data)
 
 
 if __name__ == '__main__':
     username = input()
     password = input()
     parser = LastFM(username, password, 3)
+    parser.get_album_covers(albums=albums)
 
