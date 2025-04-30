@@ -1,10 +1,8 @@
 from pprint import pprint
 import time
 import base64
-import math
 import os
 
-import requests
 from bs4 import BeautifulSoup
 
 from selenium import webdriver
@@ -20,17 +18,20 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from PIL import Image
 
-from test_data import albums
-from utils import remove_similar_strings
+from test_data import albums, username, password
+from utils import make_collage
 
 
 class LastFM:
 
-    def __init__(self, username, password, quantity):
+    def __init__(self, username, password, num_pages, week=False):
         self.username = username
         self.password = password
-        self.quantity = quantity
-        self.saved_images = [os.path.join('covers', filename) for filename in os.listdir('covers')]
+        self.num_pages = num_pages
+        self.week = week
+
+        self.albums = set()
+        self.not_found_tracks = set()
 
         self.driver = self.initialize_driver()
 
@@ -69,21 +70,21 @@ class LastFM:
     
     def get_albums(self):
         driver = self.driver
+        main_link = f'https://www.last.fm/user/{self.username}/library'
 
-        albums = set()
-        not_found_tracks = set()
+        if self.week:
+            main_link += '/tracks?date_preset=LAST_7_DAYS&page='
+        else:
+            main_link += '?page='
 
-        driver.get(f'https://www.last.fm/user/{self.username}/library/tracks?date_preset=LAST_7_DAYS&page=1')
-        time.sleep(20)
-
-        pages = self.get_pagination_links(driver=driver)
-
-        for page in range(len(pages) + 1):
-            if page != 0:
-                driver.get(pages[page - 1])
-                time.sleep(10)
-            
-            track_links = [a.get_attribute('href') for a in driver.find_elements(By.XPATH, '//td[@class="chartlist-name"]/a')]
+        driver.get(f'{main_link}')
+        time.sleep(15)
+        
+        for page in range(1, self.num_pages + 1):
+            driver.get(f'{main_link}{page}')
+            time.sleep(3)
+        
+            track_links = set([a.get_attribute('href') for a in driver.find_elements(By.XPATH, '//td[@class="chartlist-name"]/a')])
 
             for track_link in track_links:
                 driver.get(track_link)
@@ -94,26 +95,17 @@ class LastFM:
                     ).text
 
                     album_name = driver.find_element(By.CLASS_NAME, 'source-album-name').text
-                    albums.add(f'{artist} - {album_name}')
-                
+                    self.albums.add(f'{artist} - {album_name}')
+                    
                 except Exception as e:
                     track_artist = ' '.join(track_link.split('/')[4].split('+'))
                     track_name = ' '.join(track_link.split('/')[-1].split('+'))
-                    not_found_tracks.add(f'{track_artist} - {track_name}')
+                    self.not_found_tracks.add(f'{track_artist} - {track_name}')
         
-        pprint(albums)
-        pprint(not_found_tracks)
-    
-    def get_pagination_links(self, driver):
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, 'pagination-list'))
-        )
+        pprint(self.albums)
+        pprint(self.not_found_tracks)
 
-        a_elements = driver.find_elements(By.CSS_SELECTOR, 'ul.pagination-list a')
-
-        links = [a.get_attribute('href') for a in a_elements]
-
-        return links
+        self.get_album_covers(self.albums)
     
     def get_album_covers(self, albums):
         driver = self.driver
@@ -146,56 +138,10 @@ class LastFM:
             
             except Exception as e:
                 print(f'Error during processing {album}: {e}')
-        
-        self.make_collage()
-    
-    def make_collage(self, collage_path='collage.jpg', collage_size=1200, margin=0):
-        if not self.saved_images:
-            print('No images to make collage of')
-            return
-        
-        print(len(self.saved_images))
-        self.saved_images = remove_similar_strings(self.saved_images, 0.7)
-        print(len(self.saved_images))
-
-        images = [Image.open(path) for path in self.saved_images]
-
-        num_images = len(images)
-        cols = int(math.sqrt(num_images))
-        rows = math.ceil(num_images / cols)
-
-        thumb_size = collage_size // max(cols, rows)
-
-        collage_image = Image.new('RGB', (thumb_size * cols, thumb_size * rows), color='white')
-
-        def crop_center(img):
-            width, height = img.size
-            new_side = min(width, height)
-            left = (width - new_side) // 2
-            top = (height - new_side) // 2
-            right = (width + new_side) // 2
-            bottom = (height + new_side) // 2
-            return img.crop((left, top, right, bottom))
-
-        x = margin
-        y = margin
-
-        for idx, img in enumerate(images):
-            img = crop_center(img)
-            img = img.resize((thumb_size, thumb_size), Image.LANCZOS)
-            collage_image.paste(img, (x * thumb_size, y * thumb_size))
-
-            x += 1
-            if x >= cols:
-                x = 0
-                y += 1
-
-        collage_image.save(collage_path)
 
 
 if __name__ == '__main__':
-    username = 'test'
-    password = 'test'
-    parser = LastFM(username, password, 3)
-    parser.make_collage()
+    parser = LastFM(username, password, 1)
+    parser.authorize()
+    make_collage()
 
