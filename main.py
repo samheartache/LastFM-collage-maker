@@ -91,17 +91,12 @@ class LastFM:
             for track_link in track_links:
                 driver.get(track_link)
 
-                try:
-                    artist = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.CLASS_NAME, 'source-album-artist'))
-                    ).text
+                artist_elements = driver.find_elements(By.CLASS_NAME, 'source-album-artist')
+                album_elements = driver.find_elements(By.CLASS_NAME, 'source-album-name')
 
-                    album_name = WebDriverWait(driver, 5).until(
-                        EC.presence_of_element_located((By.CLASS_NAME, 'source-album-name'))
-                    ).text
-                    self.albums.add(f'{artist} - {album_name}')
-                    
-                except Exception as e:
+                if artist_elements and album_elements:
+                    self.albums.add(f'{artist_elements[0].text} - {album_elements[0].text}')
+                else:
                     track_artist = ' '.join(track_link.split('/')[4].split('+'))
                     track_name = ' '.join(track_link.split('/')[-1].split('+'))
                     self.not_found_tracks.add(f'{track_artist} - {track_name}')
