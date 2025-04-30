@@ -1,5 +1,4 @@
 from pprint import pprint
-import time
 import base64
 import os
 
@@ -32,6 +31,7 @@ class LastFM:
 
         self.albums = set()
         self.not_found_tracks = set()
+        self.saved_images = []
 
         self.driver = self.initialize_driver()
 
@@ -53,19 +53,22 @@ class LastFM:
         driver = self.driver
         driver.get('https://www.last.fm/')
         
-        login_button = driver.find_element(By.CLASS_NAME, 'site-auth-control')
+        login_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.CLASS_NAME, 'site-auth-control')))
         login_button.click()
 
-        time.sleep(5)
-
-        login_input = driver.find_element(By.CSS_SELECTOR, 'input[name="username_or_email"]')
+        login_input = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, 'input[name="username_or_email"]')))
         password_input = driver.find_element(By.CSS_SELECTOR, 'input[name="password"]')
         submit_button = driver.find_element(By.CSS_SELECTOR, 'button[name="submit"]')
 
         login_input.send_keys(self.username)
         password_input.send_keys(self.password)
         submit_button.click()
-        time.sleep(5)
+        
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, 'header-avatar')))
+        
         self.get_albums()
     
     def get_albums(self):
@@ -77,12 +80,11 @@ class LastFM:
         else:
             main_link += '?page='
 
-        driver.get(f'{main_link}')
-        time.sleep(15)
-        
         for page in range(1, self.num_pages + 1):
             driver.get(f'{main_link}{page}')
-            time.sleep(3)
+            
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//td[@class="chartlist-name"]/a')))
         
             track_links = set([a.get_attribute('href') for a in driver.find_elements(By.XPATH, '//td[@class="chartlist-name"]/a')])
 
@@ -94,7 +96,9 @@ class LastFM:
                         EC.presence_of_element_located((By.CLASS_NAME, 'source-album-artist'))
                     ).text
 
-                    album_name = driver.find_element(By.CLASS_NAME, 'source-album-name').text
+                    album_name = WebDriverWait(driver, 5).until(
+                        EC.presence_of_element_located((By.CLASS_NAME, 'source-album-name'))
+                    ).text
                     self.albums.add(f'{artist} - {album_name}')
                     
                 except Exception as e:
@@ -113,28 +117,31 @@ class LastFM:
         os.makedirs(covers_dir, exist_ok=True)
         
         for album in albums:
-
             driver.get('https://images.google.com/')
-            search_input = driver.find_element(By.NAME, 'q')
+            
+            search_input = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.NAME, 'q')))
             search_input.send_keys(album)
             search_input.send_keys(Keys.RETURN)
-            time.sleep(5)
-
-            div_s = driver.find_element(By.ID, 'search')
-            img = div_s.find_element(By.TAG_NAME, 'img')
-            image_url = img.get_attribute('src')
-
+            
             try:
-                header, encoded = image_url.split(',', 1)
-                image_data = base64.b64decode(encoded)
+                img = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, '#search img')))
+                image_url = img.get_attribute('src')
 
-                safe_album_name = album.replace('/', '_').replace('\\', '_')
-                image_path = os.path.join(covers_dir, f'{safe_album_name}.jpg')
-                
-                with open(image_path, 'wb') as f:
-                    f.write(image_data)
+                if image_url.startswith('data:image'):
+                    header, encoded = image_url.split(',', 1)
+                    image_data = base64.b64decode(encoded)
 
-                self.saved_images.append(image_path)
+                    safe_album_name = album.replace('/', '_').replace('\\', '_')
+                    image_path = os.path.join(covers_dir, f'{safe_album_name}.jpg')
+                    
+                    with open(image_path, 'wb') as f:
+                        f.write(image_data)
+
+                    self.saved_images.append(image_path)
+                else:
+                    print(f'Skipping non-base64 image for {album}')
             
             except Exception as e:
                 print(f'Error during processing {album}: {e}')
@@ -144,4 +151,3 @@ if __name__ == '__main__':
     parser = LastFM(username, password, 1)
     parser.authorize()
     make_collage()
-
