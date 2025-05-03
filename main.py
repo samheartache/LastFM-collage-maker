@@ -1,8 +1,6 @@
-from pprint import pprint
 import base64
 import os
-
-from bs4 import BeautifulSoup
+import time
 
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -15,15 +13,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from PIL import Image
-
-from test_data import albums, username, password
-from utils import make_collage
+from images_handle import make_collage
 
 
 class LastFM:
 
-    def __init__(self, username, password, num_pages, week=False):
+    def __init__(self, username, password, num_pages, week=False, is_headless=True):
         self.username = username
         self.password = password
         self.num_pages = num_pages
@@ -33,13 +28,18 @@ class LastFM:
         self.not_found_tracks = set()
         self.saved_images = []
 
+        self.is_headless = is_headless
+
         self.driver = self.initialize_driver()
 
-    def initialize_driver(self, is_headless=False):
+    def initialize_driver(self):
         chrome_options = Options()
-        if is_headless:
-            chrome_options.add_argument("--headless")
+
+        if self.is_headless:
+            chrome_options.add_argument('--headless')
         chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--disable-extensions')
         chrome_options.add_argument('--window-size=1920,1080')
         chrome_options.add_argument('--log-level=3')
         chrome_options.add_argument('--ignore-certificate-errors')
@@ -101,48 +101,64 @@ class LastFM:
                     track_name = ' '.join(track_link.split('/')[-1].split('+'))
                     self.not_found_tracks.add(f'{track_artist} - {track_name}')
         
-        pprint(self.albums)
-        pprint(self.not_found_tracks)
-
-        self.get_album_covers(self.albums)
-    
-    def get_album_covers(self, albums):
-        driver = self.driver
-        covers_dir = 'covers'
-        os.makedirs(covers_dir, exist_ok=True)
+        with open('albums.txt', 'w', encoding='utf-8') as file:
+            for al in self.albums:
+                file.write(al + '\n')
         
-        for album in albums:
-            driver.get('https://images.google.com/')
-            
-            search_input = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.NAME, 'q')))
-            search_input.send_keys(album)
-            search_input.send_keys(Keys.RETURN)
+        with open('songs.txt', 'w', encoding='utf-8') as file:
+            for s in self.not_found_tracks:
+                file.write(s + '\n')
+
+    
+    def search_images(self, queries, covers_dir, delay=3):
+        driver = self.driver
+        os.makedirs(covers_dir, exist_ok=True)
+
+        for query in queries:
+            query = query.strip()
             
             try:
-                img = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, '#search img')))
-                image_url = img.get_attribute('src')
+                driver.get('https://images.google.com/')
+                
+                search_input = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.NAME, 'q')))
+                search_input.send_keys(query)
+                search_input.send_keys(Keys.RETURN)
 
-                if image_url.startswith('data:image'):
+                img = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, '#rcnt img')))
+                
+                image_url = img.get_attribute('src') or img.get_attribute('data-src')
+
+                if image_url and image_url.startswith('data:image'):
                     header, encoded = image_url.split(',', 1)
                     image_data = base64.b64decode(encoded)
 
-                    safe_album_name = album.replace('/', '_').replace('\\', '_')
-                    image_path = os.path.join(covers_dir, f'{safe_album_name}.jpg')
-                    
+                    safe_image_name = query.replace('/', '_').replace('\\', '_')
+                    image_path = os.path.join(covers_dir, f'{safe_image_name}.jpg')
+
                     with open(image_path, 'wb') as f:
                         f.write(image_data)
 
                     self.saved_images.append(image_path)
+                    print(f'Downloaded cover for: {query}')
+
+                    if delay:
+                        print(f"Pausing for {delay} seconds to avoid bot detection...")
+                        time.sleep(delay)
+
                 else:
-                    print(f'Skipping non-base64 image for {album}')
-            
+                    print(f'Skipping non-base64 or empty image for {query}')
+
             except Exception as e:
-                print(f'Error during processing {album}: {e}')
+                print(f'Error processing {query}: {e}')
 
 
 if __name__ == '__main__':
-    parser = LastFM(username, password, 1)
+    username = input()
+    password = input()
+    parser = LastFM(username, password, 28, is_headless=False)
     parser.authorize()
-    make_collage()
+    ALBUMS = [album for album in open('albums.txt', encoding='utf-8')]
+    parser.search_images(queries=ALBUMS, covers_dir='test_images', delay=0)
+

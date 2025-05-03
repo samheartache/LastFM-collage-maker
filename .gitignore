@@ -3,3 +3,6 @@
 test_data.py
 collage.jpg
 **/covers/
+**/test_covers/
+albums.txt
+songs.txt
