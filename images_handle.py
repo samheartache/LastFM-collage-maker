@@ -1,8 +1,17 @@
 from PIL import Image
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 import difflib
 import os
 import math
+import base64
+import time
+
+from lastfm import initialize_driver
+
 
 def remove_similar_strings(strings, threshold=0.85):
     result = []
@@ -10,6 +19,7 @@ def remove_similar_strings(strings, threshold=0.85):
         if not any(difflib.SequenceMatcher(None, s, r).ratio() > threshold for r in result):
             result.append(s)
     return result
+
 
 def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=None):
         if (not collage_path.endswith('.jpg')) and (not collage_path.endswith('.png')):
@@ -56,3 +66,46 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
                 y += 1
 
         collage_image.save(collage_path)
+
+
+def search_images(queries, covers_dir, delay=3):
+        driver = initialize_driver()
+        os.makedirs(covers_dir, exist_ok=True)
+
+        for query in queries:
+            query = query.strip()
+            
+            try:
+                driver.get('https://images.google.com/')
+                
+                search_input = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.NAME, 'q')))
+                search_input.send_keys(query)
+                search_input.send_keys(Keys.RETURN)
+
+                img = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, '#rcnt img')))
+                
+                image_url = img.get_attribute('src') or img.get_attribute('data-src')
+
+                if image_url and image_url.startswith('data:image'):
+                    header, encoded = image_url.split(',', 1)
+                    image_data = base64.b64decode(encoded)
+
+                    safe_image_name = query.replace('/', '_').replace('\\', '_')
+                    image_path = os.path.join(covers_dir, f'{safe_image_name}.jpg')
+
+                    with open(image_path, 'wb') as f:
+                        f.write(image_data)
+
+                    print(f'Downloaded cover for: {query}')
+
+                    if delay:
+                        print(f"Pausing for {delay} seconds to avoid bot detection...")
+                        time.sleep(delay)
+
+                else:
+                    print(f'Skipping non-base64 or empty image for {query}')
+
+            except Exception as e:
+                print(f'Error processing {query}: {e}')
