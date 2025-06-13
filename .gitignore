@@ -4,6 +4,7 @@ test_data.py
 collage.jpg
 **/covers/
 **/test_covers/
+**/june2week/
 albums.txt
 songs.txt
 **/may1week/
@@ -11,3 +12,4 @@ songs.txt
 **/june1week/
 june1collage.jpg
 may2collage.jpg
+june2collage.jpg

@@ -12,6 +12,9 @@ def remove_similar_strings(strings, threshold=0.85):
     return result
 
 def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=None):
+        if (not collage_path.endswith('.jpg')) and (not collage_path.endswith('.png')):
+            collage_path += '.jpg'
+
         images = [os.path.join(images_path, filename) for filename in os.listdir(images_path)]
         if not images:
             print('No images to make collage of')

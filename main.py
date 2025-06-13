@@ -1,6 +1,7 @@
 import base64
 import os
 import time
+from urllib.parse import unquote
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -10,6 +11,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+
+from images_handle import make_collage
 
 
 class LastFM:
@@ -29,18 +32,23 @@ class LastFM:
         if self.is_headless:
             chrome_options.add_argument('--headless')
         
+        chrome_options.page_load_strategy = 'eager'
+
+        chrome_options.add_argument('--blink-settings=imagesEnabled=false')
+        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         chrome_options.add_argument('--blink-settings=imagesEnabled=false')
         chrome_options.add_argument('--disable-extensions')
         chrome_options.add_argument('--disable-notifications')
         chrome_options.add_argument('--disable-infobars')
         chrome_options.add_argument('--disable-browser-side-navigation')
         chrome_options.add_argument('--disable-features=NetworkService')
-        chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        chrome_options.add_experimental_option('useAutomationExtension', False)
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--window-size=1920,1080')
+
+        chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        chrome_options.add_experimental_option('useAutomationExtension', False)
         
         service = Service(executable_path=ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
@@ -184,7 +192,8 @@ class LastFM:
 
     def _add_to_not_found(self, track_link):
         try:
-            parts = track_link.split('/')
+            decoded_url = unquote(track_link)
+            parts = decoded_url.split('/')
             artist = ' '.join(parts[4].split('+'))
             track_name = ' '.join(parts[-1].split('+'))
             self.not_found_tracks.add(f'{artist} - {track_name}')
@@ -249,8 +258,11 @@ class LastFM:
 if __name__ == '__main__':
     username = input("Enter Last.fm username: ")
     password = input("Enter Last.fm password: ")
-    parser = LastFM(username, password, 7, is_headless=False)
+    parser = LastFM(username, password, 5, is_headless=False)
     parser.authorize()
     parser.save_results()
     ALBUMS = [album for album in open('albums.txt', encoding='utf-8')]
-    parser.search_images(queries=ALBUMS, covers_dir='may2week', delay=2)
+    covers_dir = input('Enter directory name where album covers will be saved: ')
+    parser.search_images(queries=ALBUMS, covers_dir=covers_dir, delay=2)
+    collage_path = input('Enter file name for collage: ')
+    make_collage(collage_path=collage_path, images_path=covers_dir)
