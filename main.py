@@ -3,6 +3,7 @@ from pystyle import *
 from ascii_arts import LOGO, MENU
 from lastfm import LastFM
 from images_handle import make_collage, search_images
+from validate import *
 
 
 def main():
@@ -32,7 +33,7 @@ def main():
         covers_dir = input('Enter directory name where album covers will be saved: ')
         delay = get_valid_input('delay betweem image searching to avoid bot detection', validate_num)
         search_images(queries=queries, covers_dir=covers_dir, delay=int(delay))
-        
+
         print(f'All album covers were saved in {covers_dir}')
 
     elif choice == '3':
@@ -41,33 +42,6 @@ def main():
         make_collage(collage_path=collage_path, images_path=covers_dir)
 
         print(f'Your collage is done and saved as {collage_path}')
-
-
-def get_valid_input(value, validation_func):
-    while True:
-        user_input = input(f'Enter {value}: ')
-        if validation_func(user_input):
-            return user_input
-        print(f'Please enter {value} correctly ')
-
-
-def validate_textpath(path: str):
-    if path.strip().endswith('.txt'):
-        return True
-    return False
-
-def validate_imagepath(path:str):
-    if path.strip().endswith('.jpg') or path.strip().endswith('.png'):
-        print('fjhs')
-        return True
-    return False
-
-
-def validate_num(num: str):
-    if num.isdigit():
-        if 1 < int(num) < 100:
-            return True
-    return False
 
 
 if __name__ == '__main__':
