@@ -10,9 +10,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
 
-def initialize_driver(self):
+def initialize_driver(is_headless=True):
         chrome_options = Options()
-        if self.is_headless:
+        if is_headless:
             chrome_options.add_argument('--headless')
         
         chrome_options.page_load_strategy = 'eager'
@@ -49,7 +49,7 @@ class LastFM:
         self.album_save_path = album_save_path
         self.songs_save_path = songs_save_path
         self.is_headless = is_headless
-        self.driver = initialize_driver()
+        self.driver = initialize_driver(is_headless=self.is_headless)
     
     def authorize(self):
         self.driver.set_page_load_timeout(5)
