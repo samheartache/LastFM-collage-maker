@@ -11,6 +11,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
+from pystyle import *
+
 
 def initialize_driver(is_headless=True, logs=False):
     chrome_options = Options()
@@ -67,7 +69,7 @@ def initialize_driver(is_headless=True, logs=False):
 
 
 class LastFM:
-    def __init__(self, username, password, num_pages, album_save_path, songs_save_path, week=False, is_headless=False):
+    def __init__(self, username, password, num_pages, album_save_path, songs_save_path, week=False, is_headless=True):
         self.username = username
         self.password = password
         self.num_pages = int(num_pages)
@@ -85,14 +87,14 @@ class LastFM:
         try:
             self.driver.get('https://www.last.fm/')
         except:
-            print("Page load timeout reached, continuing anyway...")
+            print(Colorate.Horizontal(Colors.red_to_white, 'Page load timeout reached, continuing anyway...'))
         
         try:
             login_button = WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, 'site-auth-control')))
             login_button.click()
         except Exception as e:
-            print(f"Error clicking login button: {e}")
+            print(Colorate.Horizontal(Colors.red_to_white, f'Error clicking login button: {e}'))
             login_button = self.driver.execute_script(
                 "return document.querySelector('.site-auth-control');")
             if login_button:
@@ -121,7 +123,7 @@ class LastFM:
             WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'header-avatar')))
         except:
-            print("Warning: Avatar not found, but continuing anyway...")
+            print(Colorate.Horizontal(Colors.red_to_white, 'Warning: Avatar not found, but continuing anyway...'))
         
         self.get_albums()
     
@@ -133,7 +135,7 @@ class LastFM:
         main_link += '/tracks?date_preset=LAST_7_DAYS&page=' if self.week else '?page='
 
         for page in range(1, self.num_pages + 1):
-            print(f"Handling page {page}")
+            print(Colorate.Horizontal(Colors.green_to_white, f'Handling page {page}'))
             
             while True:
                 try:
@@ -150,7 +152,7 @@ class LastFM:
                             pass
                         
                         if time.time() - start_time > 60:
-                            raise Exception("Слишком долгая загрузка элементов")
+                            raise Exception('Loading was too long')
                         
                         time.sleep(1)
                     
@@ -160,8 +162,8 @@ class LastFM:
                     break
 
                 except Exception as e:
-                    print(f"Erroron page {page}: {str(e)}")
-                    print("Retrying...")
+                    print(Colorate.Horizontal(Colors.red_to_white, f'Error on page {page}: {str(e)}'))
+                    print(Colorate.Horizontal(Colors.red_to_white, 'Retrying...'))
                     time.sleep(2)
                     continue
     
@@ -178,12 +180,12 @@ class LastFM:
             if artist and album:
                 album_info = f'{artist} - {album}'
                 self.albums.add(album_info)
-                print(f'Handled: {album_info} | Page: {page}')
+                print(Colorate.Horizontal(Colors.green_to_white, f'Handled: {album_info} | Page: {page}'))
             else:
                 self._add_to_not_found(track_link)
                 
         except Exception as e:
-            print(f"Error handling {track_link}: {e}")
+            print(Colorate.Horizontal(Colors.red_to_white, f'Error handling {track_link}: {e}'))
             self._add_to_not_found(track_link)
 
     def _is_album_unavailable(self):
@@ -222,9 +224,9 @@ class LastFM:
             artist = ' '.join(parts[4].split('+'))
             track_name = ' '.join(parts[-1].split('+'))
             self.not_found_tracks.add(f'{artist} - {track_name}')
-            print(f'Track with unknown album: {artist} - {track_name}')
+            print(Colorate.Horizontal(Colors.red_to_white, f'Track with unknown album: {artist} - {track_name}'))
         except:
-            print(f'Failed to recognize URL: {track_link}')
+            print(Colorate.Horizontal(Colors.red_to_white, f'Failed to recognize URL: {track_link}'))
             self.not_found_tracks.add(f'Unknown - {track_link}')
     
     def save_results(self):

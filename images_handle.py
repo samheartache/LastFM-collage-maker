@@ -1,14 +1,16 @@
+import difflib
+import os
+import math
+import base64
+import time
+
 from PIL import Image
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-import difflib
-import os
-import math
-import base64
-import time
+from pystyle import *
 
 from lastfm import initialize_driver
 
@@ -27,7 +29,7 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
 
         images = [os.path.join(images_path, filename) for filename in os.listdir(images_path)]
         if not images:
-            print('No images to make collage of')
+            print(Colorate.Horizontal(Colors.red_to_white, 'No images to make collage of'))
             return
         
         if similar_value:
@@ -97,15 +99,15 @@ def search_images(queries, covers_dir, delay=3):
 
                     with open(image_path, 'wb') as f:
                         f.write(image_data)
-
-                    print(f'Downloaded cover for: {query}')
+                    
+                    print(Colorate.Horizontal(Colors.green_to_white, f'Downloaded cover for: {query}'))
 
                     if delay:
-                        print(f"Pausing for {delay} seconds to avoid bot detection...")
+                        print(f'Pausing for {delay} seconds to avoid bot detection...')
                         time.sleep(delay)
 
                 else:
-                    print(f'Skipping non-base64 or empty image for {query}')
+                    print(Colorate.Horizontal(Colors.red_to_white, f'Skipping non-base64 or empty image for {query}'))
 
             except Exception as e:
-                print(f'Error processing {query}: {e}')
+                print(Colorate.Horizontal(Colors.red_to_white, f'Error processing {query}: {e}'))
