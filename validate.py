@@ -20,6 +20,6 @@ def validate_imagepath(path:str):
 
 def validate_num(num: str):
     if num.isdigit():
-        if 1 < int(num) < 100:
+        if 1 <= int(num) <= 100:
             return True
     return False

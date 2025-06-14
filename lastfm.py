@@ -1,5 +1,7 @@
 import time
 from urllib.parse import unquote
+import os
+import sys
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -10,36 +12,62 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
 
-def initialize_driver(is_headless=True):
-        chrome_options = Options()
-        if is_headless:
-            chrome_options.add_argument('--headless')
-        
-        chrome_options.page_load_strategy = 'eager'
+def initialize_driver(is_headless=True, logs=False):
+    chrome_options = Options()
+    
+    if is_headless:
+        chrome_options.add_argument('--headless=new')
+    
+    chrome_options.page_load_strategy = 'eager'
+    chrome_options.add_argument('--blink-settings=imagesEnabled=false')
+    chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+    chrome_options.add_argument('--disable-extensions')
+    chrome_options.add_argument('--disable-notifications')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--window-size=1920,1080')
+    chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+    chrome_options.add_experimental_option('useAutomationExtension', False)
 
-        chrome_options.add_argument('--blink-settings=imagesEnabled=false')
-        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-        chrome_options.add_argument('--blink-settings=imagesEnabled=false')
-        chrome_options.add_argument('--disable-extensions')
-        chrome_options.add_argument('--disable-notifications')
-        chrome_options.add_argument('--disable-infobars')
-        chrome_options.add_argument('--disable-browser-side-navigation')
-        chrome_options.add_argument('--disable-features=NetworkService')
-        chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--window-size=1920,1080')
-
-        chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-        chrome_options.add_experimental_option('useAutomationExtension', False)
+    if not logs:
+        chrome_options.add_argument('--log-level=0')
+        chrome_options.add_argument('--disable-logging')
+        chrome_options.add_argument('--silent')
+        chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
+        chrome_options.add_argument('--enable-logging')
+        chrome_options.add_argument('--log-path=' + os.devnull)
+        chrome_options.add_argument('--disable-features=VoiceTranscription,OptimizationHints')
+        chrome_options.add_argument('--disable-component-update')
+        chrome_options.add_argument('--disable-background-networking')
         
+        service = Service(
+            executable_path=ChromeDriverManager().install(),
+            service_args=['--verbose=0', '--log-path=' + os.devnull],
+        )
+        
+        if os.name == 'nt':
+            service.creation_flags = 0x08000000 
+        
+        with open(os.devnull, 'w') as f:
+            original_stdout = sys.stdout
+            original_stderr = sys.stderr
+            sys.stdout = f
+            sys.stderr = f
+            try:
+                driver = webdriver.Chrome(service=service, options=chrome_options)
+            finally:
+                sys.stdout = original_stdout
+                sys.stderr = original_stderr
+    else:
         service = Service(executable_path=ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
-        return driver
+    
+    return driver
 
 
 class LastFM:
-    def __init__(self, username, password, num_pages, album_save_path, songs_save_path, week=False, is_headless=True):
+    def __init__(self, username, password, num_pages, album_save_path, songs_save_path, week=False, is_headless=False):
         self.username = username
         self.password = password
         self.num_pages = int(num_pages)

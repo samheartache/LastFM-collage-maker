@@ -16,8 +16,8 @@ def main():
         choice = input()
     
     if choice == '1':
-        username = get_valid_input('LastFM username')
-        password = get_valid_input('LastFM password')
+        username = input('Enter your LastFM username: ')
+        password = input('Enter your LastFM password: ')
         album_save_path = get_valid_input('album save path (.txt)', validate_textpath)
         songs_save_path = get_valid_input('songs save path (.txt)', validate_textpath)
         num_pages = get_valid_input('num pages', validate_num)
