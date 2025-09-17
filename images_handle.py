@@ -57,7 +57,7 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
         x = margin
         y = margin
 
-        for idx, img in enumerate(images):
+        for img in images:
             img = crop_center(img)
             img = img.resize((thumb_size, thumb_size), Image.LANCZOS)
             collage_image.paste(img, (x * thumb_size, y * thumb_size))
