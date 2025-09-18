@@ -3,7 +3,7 @@ venv
 **/covers/
 **/test_covers/
 albums.txt
-songs.txt
+unknown.txt
 *.jpg
 *week
 .env
