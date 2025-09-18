@@ -13,18 +13,10 @@ from selenium.webdriver.common.keys import Keys
 
 from pystyle import *
 
-from lastfm import initialize_driver
+from utils import initialize_driver, remove_similar_strings
 
 
-def remove_similar_strings(strings, threshold=0.85):
-    result = []
-    for s in strings:
-        if not any(difflib.SequenceMatcher(None, s, r).ratio() > threshold for r in result):
-            result.append(s)
-    return result
-
-
-def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=None):
+def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=False):
         if (not collage_path.endswith('.jpg')) and (not collage_path.endswith('.png')):
             collage_path += '.jpg'
 
@@ -113,25 +105,28 @@ def search_image(query, covers_dir, delay=3):
             print(Colorate.Horizontal(Colors.red_to_white, f'Error processing {query}: {e}'))
 
 
-def fast_search_images(queries, covers_dir):
+def fast_search_images(queries, covers_dir, delay):
     os.makedirs(covers_dir, exist_ok=True)
     for album in queries:
         album_arr = album.split(',')
         title = album_arr[0].strip()
 
-        if len(album_arr[1]) > 4:
-            image = album_arr[1].strip()
-            save_image_path = os.path.join(covers_dir, f'{title}.jpg')
+        if len(album_arr) > 1:
+            if len(album_arr[1]) > 4:
+                image = album_arr[1].strip()
+                save_image_path = os.path.join(covers_dir, f'{title}.jpg')
 
-            try:
-                response = requests.get(url=image, stream=True)
+                try:
+                    response = requests.get(url=image, stream=True)
 
-                with open(save_image_path, 'wb') as file:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        file.write(chunk)
-                
-                print(Colorate.Horizontal(Colors.green_to_white, f'Downloaded cover for: {title}'))
-            except Exception as e:
-                print(Colorate.Horizontal(Colors.red_to_white, f'Error processing {title}: {e}'))
+                    with open(save_image_path, 'wb') as file:
+                        for chunk in response.iter_content(chunk_size=8192):
+                            file.write(chunk)
+                    
+                    print(Colorate.Horizontal(Colors.green_to_white, f'Downloaded cover for: {title}'))
+                except Exception as e:
+                    print(Colorate.Horizontal(Colors.red_to_white, f'Error processing {title}: {e}'))
+            else:
+                search_image(query=title, covers_dir=covers_dir, delay=delay)
         else:
-            search_image(query=title, covers_dir=covers_dir, delay=0)
+            search_image(query=title, covers_dir=covers_dir, delay=delay)

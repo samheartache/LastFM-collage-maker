@@ -18,10 +18,11 @@ LLLLLLLLLLLLLLLLLLLLLLLL  aaaaaaaaaa  aaaa sssssssssss              ttttttttttt 
 '''
 
 MENU = '''
-┌───────────────────────────────────────────────────┐  
-│              [1] | Parse your albums              │  
-│              [2] | Download album covers          │  
-│              [3] | Make collage                   │  
-│              [4] | Guidance on the use            │  
-└───────────────────────────────────────────────────┘   
+┌───────────────────────────────────────────────────────────────────────────────────────────────┐  
+│                   [1] | Make a collage of album covers                                        │
+│                   [2] | Parse your albums to text file                                        │  
+│                   [3] | Download album covers (text file with titles is needed)               │  
+│                   [4] | Make a collage of already downloaded images                           │                                       
+│                   [5] | Guidance on the use                                                   │ 
+└───────────────────────────────────────────────────────────────────────────────────────────────┘  
 '''

@@ -1,239 +1,97 @@
-import time
-from urllib.parse import unquote
 import os
-import sys
+from datetime import datetime, timedelta
 
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
+import dotenv
+import requests
+from bs4 import BeautifulSoup
 
-from pystyle import *
+dotenv.load_dotenv()
 
+API_KEY = os.getenv('API_KEY')
 
-def initialize_driver(is_headless=True, logs=False):
-    chrome_options = Options()
-    
-    if is_headless:
-        chrome_options.add_argument('--headless=new')
-    
-    chrome_options.page_load_strategy = 'eager'
-    chrome_options.add_argument('--blink-settings=imagesEnabled=false')
-    chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-    chrome_options.add_argument('--disable-extensions')
-    chrome_options.add_argument('--disable-notifications')
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument('--window-size=1920,1080')
-    chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
-    chrome_options.add_experimental_option('useAutomationExtension', False)
-
-    if not logs:
-        chrome_options.add_argument('--log-level=0')
-        chrome_options.add_argument('--disable-logging')
-        chrome_options.add_argument('--silent')
-        chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        chrome_options.add_argument('--enable-logging')
-        chrome_options.add_argument('--log-path=' + os.devnull)
-        chrome_options.add_argument('--disable-features=VoiceTranscription,OptimizationHints')
-        chrome_options.add_argument('--disable-component-update')
-        chrome_options.add_argument('--disable-background-networking')
-        
-        service = Service(
-            executable_path=ChromeDriverManager().install(),
-            service_args=['--verbose=0', '--log-path=' + os.devnull],
-        )
-        
-        if os.name == 'nt':
-            service.creation_flags = 0x08000000 
-        
-        with open(os.devnull, 'w') as f:
-            original_stdout = sys.stdout
-            original_stderr = sys.stderr
-            sys.stdout = f
-            sys.stderr = f
-            try:
-                driver = webdriver.Chrome(service=service, options=chrome_options)
-            finally:
-                sys.stdout = original_stdout
-                sys.stderr = original_stderr
-    else:
-        service = Service(executable_path=ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=chrome_options)
-    
-    return driver
+WEEK = int((datetime.now() - timedelta(weeks=1)).timestamp())
 
 
-class LastFM:
-    def __init__(self, username, password, num_pages, album_save_path, songs_save_path, week=False, is_headless=True):
+class LastfmAPI:
+    def __init__(self, username: str, timestamp=WEEK, limit=1000, album_path='albums.txt', unknown_path='unknown.txt'):
         self.username = username
-        self.password = password
-        self.num_pages = int(num_pages)
-        self.week = week
-        self.albums = set()
-        self.not_found_tracks = set()
-        self.album_save_path = album_save_path
-        self.songs_save_path = songs_save_path
-        self.is_headless = is_headless
-        self.driver = initialize_driver(is_headless=self.is_headless)
+        self.timestamp = timestamp
+        self.limit = limit
+        self.not_found = set()
+        self.album_path = album_path
+        self.unknown_path = unknown_path
+        self.albums = self.get_user_albums()
     
-    def authorize(self):
-        self.driver.set_page_load_timeout(5)
-        
-        try:
-            self.driver.get('https://www.last.fm/')
-        except:
-            print(Colorate.Horizontal(Colors.red_to_white, 'Page load timeout reached, continuing anyway...'))
-        
-        try:
-            login_button = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.CLASS_NAME, 'site-auth-control')))
-            login_button.click()
-        except Exception as e:
-            print(Colorate.Horizontal(Colors.red_to_white, f'Error clicking login button: {e}'))
-            login_button = self.driver.execute_script(
-                "return document.querySelector('.site-auth-control');")
-            if login_button:
-                login_button.click()
-        
-        try:
-            login_input = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, 'input[name="username_or_email"]')))
-            
-            self.driver.execute_script("""
-                document.querySelector('input[name="username_or_email"]').value = arguments[0];
-                document.querySelector('input[name="password"]').value = arguments[1];
-                document.querySelector('button[name="submit"]').click();
-            """, self.username, self.password)
-        except Exception as e:
-            print(f"Error during authorization: {e}")
-            login_input = self.driver.find_element(By.CSS_SELECTOR, 'input[name="username_or_email"]')
-            password_input = self.driver.find_element(By.CSS_SELECTOR, 'input[name="password"]')
-            submit_button = self.driver.find_element(By.CSS_SELECTOR, 'button[name="submit"]')
-            
-            login_input.send_keys(self.username)
-            password_input.send_keys(self.password)
-            submit_button.click()
-        
-        try:
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, 'header-avatar')))
-        except:
-            print(Colorate.Horizontal(Colors.red_to_white, 'Warning: Avatar not found, but continuing anyway...'))
-        
-        self.get_albums()
-    
-    def get_albums(self):
-        self.driver.set_page_load_timeout(300)
-        self.driver.implicitly_wait(0)
-        
-        main_link = f'https://www.last.fm/user/{self.username}/library'
-        main_link += '/tracks?date_preset=LAST_7_DAYS&page=' if self.week else '?page='
+    def get_user_albums(self) -> list:
+        url = f'https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user={self.username}&api_key={API_KEY}&format=json'
+        result_albums = []
+        track_titles = set()
+        album_titles = set()
 
-        for page in range(1, self.num_pages + 1):
-            print(Colorate.Horizontal(Colors.green_to_white, f'Handling page {page}'))
-            
-            while True:
-                try:
-                    self.driver.get(f'{main_link}{page}')
-                    
-                    start_time = time.time()
-                    while True:
-                        try:
-                            tracks = self.driver.find_elements(By.CSS_SELECTOR, 'td.chartlist-name > a')
-                            if tracks:
-                                track_links = {a.get_attribute('href') for a in tracks}
-                                break
-                        except:
-                            pass
-                        
-                        if time.time() - start_time > 60:
-                            raise Exception('Loading was too long')
-                        
-                        time.sleep(1)
-                    
-                    for track_link in track_links:
-                        self._process_track_guaranteed(track_link, page)
-                    
-                    break
+        if self.timestamp:
+            url += f'&from={self.timestamp}'
+        if self.limit:
+            url += f'&limit={self.limit}'
+        
+        response = requests.get(url=url)
+        response_json = response.json()
+        recent_tracks = response_json['recenttracks']['track']
 
-                except Exception as e:
-                    print(Colorate.Horizontal(Colors.red_to_white, f'Error on page {page}: {str(e)}'))
-                    print(Colorate.Horizontal(Colors.red_to_white, 'Retrying...'))
-                    time.sleep(2)
-                    continue
-    
-    def _process_track_guaranteed(self, track_link, page):
-        try:
-            self.driver.get(track_link)
-            
-            if self._is_album_unavailable():
-                self._add_to_not_found(track_link)
-                return
-            
-            artist, album = self._get_album_info()
-            
-            if artist and album:
-                album_info = f'{artist} - {album}'
-                self.albums.add(album_info)
-                print(Colorate.Horizontal(Colors.green_to_white, f'Handled: {album_info} | Page: {page}'))
+        for track in recent_tracks:
+            info = {}
+
+            info['track'] = track['name']
+            info['artist'] = track['artist']['#text']
+            title = f'{info['artist']} - {info['track']}'
+            if title not in track_titles:
+                track_titles.add(title)
             else:
-                self._add_to_not_found(track_link)
-                
-        except Exception as e:
-            print(Colorate.Horizontal(Colors.red_to_white, f'Error handling {track_link}: {e}'))
-            self._add_to_not_found(track_link)
+                continue
 
-    def _is_album_unavailable(self):
-        try:
-            missing_phrases = [
-                "У нас пока нет альбомов для этой композиции",
-                "We don't have any albums for this track yet",
-                "Показать все альбомы этого исполнителя"
-            ]
+            album = track['album']['#text']
+            if not album:
+                try:
+                    response = requests.get(url=track['url'], timeout=3)
+                    bs = BeautifulSoup(response.text, 'lxml')
+
+                    album_tag = bs.find('h4', class_='source-album-name')
+                    if album_tag:
+                        album = album_tag.get_text().strip()
+                        info['album'] = album
+                    else:
+                        self.not_found.add(title)
+                        continue
+                except:
+                    continue
+            else:
+                info['album'] = album
             
-            page_text = self.driver.page_source
-            if any(phrase in page_text for phrase in missing_phrases):
-                return True
-                
-            no_album_section = self.driver.find_elements(By.CSS_SELECTOR, '.resource-list--release-list.empty')
-            if no_album_section:
-                return True
-                
-            return False
+            if album not in album_titles:
+                album_titles.add(album)
+            else:
+                continue
+
+            info['images'] = track['image']
+            images = []
+            for im in info['images']:
+                images.append(im['#text'])
+            info['images'] = images
+
+            date = track.get('date', None)
+            if date:
+                info['date'] = date['#text']
+
+            info['url'] = track['url']
             
-        except:
-            return False
-
-    def _get_album_info(self):
-        try:
-            artist = self.driver.find_element(By.CSS_SELECTOR, '.source-album-artist a').text
-            album = self.driver.find_element(By.CSS_SELECTOR, '.source-album-name a').text
-            return (artist, album)
-        except:
-            return (None, None)
-
-    def _add_to_not_found(self, track_link):
-        try:
-            decoded_url = unquote(track_link)
-            parts = decoded_url.split('/')
-            artist = ' '.join(parts[4].split('+'))
-            track_name = ' '.join(parts[-1].split('+'))
-            self.not_found_tracks.add(f'{artist} - {track_name}')
-            print(Colorate.Horizontal(Colors.red_to_white, f'Track with unknown album: {artist} - {track_name}'))
-        except:
-            print(Colorate.Horizontal(Colors.red_to_white, f'Failed to recognize URL: {track_link}'))
-            self.not_found_tracks.add(f'Unknown - {track_link}')
-    
-    def save_results(self):
-        with open(self.album_save_path, 'w', encoding='utf-8') as file:
-            for al in self.albums:
-                file.write(al + '\n')
+            result_albums.append(info)
         
-        with open(self.songs_save_path, 'w', encoding='utf-8') as file:
-            for s in self.not_found_tracks:
-                file.write(s + '\n')
+        return result_albums
+    
+    def save_to_files(self):
+        with open(self.album_path, 'w', encoding='utf-8') as file:
+            for track in self.albums:
+                file.write(f'{track['artist']} - {track['album']}, {track['images'][-1]}\n')
+        
+        with open(self.unknown_path, 'w', encoding='utf-8') as file:
+            for track in self.not_found:
+                file.write(track + '\n')

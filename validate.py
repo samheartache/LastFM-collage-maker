@@ -9,12 +9,6 @@ def get_valid_input(value, validation_func):
         print(Colorate.Vertical(Colors.red_to_white, f'Please enter {value} correctly'))
 
 
-def validate_textpath(path: str):
-    if path.strip().endswith('.txt'):
-        return True
-    return False
-
-
 def validate_imagepath(path:str):
     if path.strip().endswith('.jpg') or path.strip().endswith('.png'):
         return True

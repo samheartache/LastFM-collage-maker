@@ -1,9 +1,8 @@
 from pystyle import *
 
 from ascii_arts import LOGO, MENU
-from lastfm import LastFM
-from images_handle import make_collage, search_images
 from validate import *
+import user_interact
 
 
 def main():
@@ -11,37 +10,28 @@ def main():
     print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(MENU)))
 
     choice = input()
-    while choice not in '1234':
+    while choice not in '12345':
         print('Please enter your choice correctly')
         choice = input()
     
     if choice == '1':
-        username = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter your LastFM username: '))
-        password = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter your LastFM password: '))
-        album_save_path = get_valid_input('album save path (.txt)', validate_textpath)
-        songs_save_path = get_valid_input('songs save path (.txt)', validate_textpath)
-        num_pages = get_valid_input('num pages', validate_num)
+        album_save_path = get_valid_input('path where the album titles will be saved', lambda x: not validate_num(x))
+        unknown_save_path = get_valid_input('path where the song titles from unknown albums will be saved', lambda x: not validate_num(x))
+        covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name for saving images of album covers: '))
+        collage_path = get_valid_input('file name for the collage (.jpg, .png)', validate_imagepath)
 
-        parser = LastFM(username=username, password=password, num_pages=num_pages, album_save_path=album_save_path, songs_save_path=songs_save_path)
-        parser.authorize()
-        parser.save_results()
-
-        print(Colorate.Vertical(Colors.green_to_white, f'All data on your albums was saved to {album_save_path} and songs with unknowkn album were saved to {songs_save_path}'))
-
+        user_interact.albums_to_text(album_save_path=album_save_path, unknown_save_path=unknown_save_path)
+        user_interact.process_imagesearching(covers_dir=covers_dir, album_save_path=album_save_path, delay=0)
+        user_interact.process_collage(covers_dir=covers_dir, collage_path=collage_path)
+ 
     elif choice == '2':
-        queries = [album for album in open(get_valid_input('file path where your albums names are saved', validate_textpath), encoding='utf-8')]
-        covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name where album covers will be saved: '))
-        delay = get_valid_input('delay betweem image searching to avoid bot detection', validate_num)
-        search_images(queries=queries, covers_dir=covers_dir, delay=int(delay))
-
-        print(Colorate.Vertical(Colors.green_to_white, f'All album covers were saved in {covers_dir}'))
+        user_interact.albums_to_text()
 
     elif choice == '3':
-        collage_path = get_valid_input('file name for collage', validate_imagepath)
-        covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name where your images are saved: '))
-        make_collage(collage_path=collage_path, images_path=covers_dir)
+        user_interact.process_imagesearching()
 
-        print(Colorate.Vertical(Colors.green_to_white, f'Your collage is done and saved as {collage_path}'))
+    elif choice == '4':
+        user_interact.process_collage()
 
 
 if __name__ == '__main__':
