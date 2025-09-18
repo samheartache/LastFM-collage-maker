@@ -1,11 +1,18 @@
 import os
 import sys
 import difflib
+from datetime import datetime, timedelta
+from enum import Enum
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
+
+
+class BasePath(Enum):
+    ALBUMS = 'albums.txt'
+    UNKNOWN = 'unknown.txt'
 
 
 def initialize_driver(is_headless=True, logs=False):
@@ -68,3 +75,13 @@ def remove_similar_strings(strings, threshold=0.85):
         if not any(difflib.SequenceMatcher(None, s, r).ratio() > threshold for r in result):
             result.append(s)
     return result
+
+
+def timestamp_handle(time):
+    if time.isdigit():
+        return int((datetime.now() - timedelta(days=int(time))).timestamp())
+    elif time.lower() in ('week', 'month'):
+        if time == 'week':
+            return int((datetime.now() - timedelta(weeks=1)).timestamp())
+        else:
+            return int((datetime.now() - timedelta(weeks=4)).timestamp())

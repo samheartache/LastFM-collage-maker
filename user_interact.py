@@ -2,26 +2,21 @@ from pystyle import *
 
 from images_handle import fast_search_images, make_collage
 from lastfm import LastfmAPI
+from utils import timestamp_handle, BasePath
 from validate import *
 
 
-def albums_to_text(album_save_path=None, unknown_save_path=None):
+def albums_to_text():
     username = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter your LastFM username: '))
-    if album_save_path is None:
-        album_save_path = get_valid_input('path where the album titles will be saved', lambda x: not validate_num(x))
-    if unknown_save_path is None:
-        unknown_save_path = get_valid_input('path where the song titles from unknown albums will be saved', lambda x: not validate_num(x))
+    time = timestamp_handle(time=get_valid_input('the time from which the albums will be selected', validate_time))
 
-    parser = LastfmAPI(username=username, album_path=album_save_path, unknown_path=unknown_save_path)
+    parser = LastfmAPI(username=username, timestamp=time)
     parser.save_to_files()
-    print(Colorate.Vertical(Colors.green_to_white, f'All data on your albums was saved to {album_save_path} and songs with unknowkn album were saved to {unknown_save_path}'))
+    print(Colorate.Vertical(Colors.green_to_white, f'All data on your albums was saved to {BasePath.ALBUMS.value} and songs with unknowkn album were saved to {BasePath.UNKNOWN.value}'))
 
 
-def process_imagesearching(covers_dir=None, album_save_path=None, delay=1):
-    if album_save_path is None:
-        queries = [album for album in open(get_valid_input('file path where your albums names are saved', lambda x: not validate_num(x)), encoding='utf-8')]
-    else:
-        queries = [album for album in open(album_save_path, encoding='utf-8')]
+def process_imagesearching(covers_dir=None, delay=1):
+    queries = [album for album in open(BasePath.ALBUMS.value, encoding='utf-8')]
     if covers_dir is None:
         covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name for saving images of album covers: '))
     if delay:

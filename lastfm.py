@@ -1,25 +1,22 @@
 import os
-from datetime import datetime, timedelta
 
 import dotenv
 import requests
 from bs4 import BeautifulSoup
 
+from utils import BasePath
+
 dotenv.load_dotenv()
 
 API_KEY = os.getenv('API_KEY')
 
-WEEK = int((datetime.now() - timedelta(weeks=1)).timestamp())
-
 
 class LastfmAPI:
-    def __init__(self, username: str, timestamp=WEEK, limit=1000, album_path='albums.txt', unknown_path='unknown.txt'):
+    def __init__(self, username: str, timestamp=None, limit=1000):
         self.username = username
         self.timestamp = timestamp
         self.limit = limit
         self.not_found = set()
-        self.album_path = album_path
-        self.unknown_path = unknown_path
         self.albums = self.get_user_albums()
     
     def get_user_albums(self) -> list:
@@ -88,10 +85,10 @@ class LastfmAPI:
         return result_albums
     
     def save_to_files(self):
-        with open(self.album_path, 'w', encoding='utf-8') as file:
+        with open(BasePath.ALBUMS.value, 'w', encoding='utf-8') as file:
             for track in self.albums:
                 file.write(f'{track['artist']} - {track['album']}, {track['images'][-1]}\n')
         
-        with open(self.unknown_path, 'w', encoding='utf-8') as file:
+        with open(BasePath.UNKNOWN.value, 'w', encoding='utf-8') as file:
             for track in self.not_found:
                 file.write(track + '\n')

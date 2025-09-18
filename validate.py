@@ -10,9 +10,7 @@ def get_valid_input(value, validation_func):
 
 
 def validate_imagepath(path:str):
-    if path.strip().endswith('.jpg') or path.strip().endswith('.png'):
-        return True
-    return False
+    return (path.strip().endswith('.jpg') or path.strip().endswith('.png'))
 
 
 def validate_num(num: str):
@@ -20,3 +18,6 @@ def validate_num(num: str):
         if 1 <= int(num) <= 100:
             return True
     return False
+
+def validate_time(time: str):
+    return (time.lower() in ('week', 'month') or time.isdigit())
