@@ -4,6 +4,7 @@ import math
 import base64
 import time
 
+import requests
 from PIL import Image
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -70,44 +71,67 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
         collage_image.save(collage_path)
 
 
-def search_images(queries, covers_dir, delay=3):
+def search_image(query, covers_dir, delay=3):
         driver = initialize_driver()
         os.makedirs(covers_dir, exist_ok=True)
 
-        for query in queries:
-            query = query.strip()
+        query = query.strip()
+        
+        try:
+            driver.get('https://images.google.com/')
             
+            search_input = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.NAME, 'q')))
+            search_input.send_keys(query)
+            search_input.send_keys(Keys.RETURN)
+
+            img = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, '#rcnt img')))
+            
+            image_url = img.get_attribute('src') or img.get_attribute('data-src')
+
+            if image_url and image_url.startswith('data:image'):
+                header, encoded = image_url.split(',', 1)
+                image_data = base64.b64decode(encoded)
+
+                safe_image_name = query.replace('/', '_').replace('\\', '_')
+                image_path = os.path.join(covers_dir, f'{safe_image_name}.jpg')
+
+                with open(image_path, 'wb') as f:
+                    f.write(image_data)
+                
+                print(Colorate.Horizontal(Colors.green_to_white, f'Downloaded cover for: {query}'))
+
+                if delay:
+                    print(f'Pausing for {delay} seconds to avoid bot detection...')
+                    time.sleep(delay)
+
+            else:
+                print(Colorate.Horizontal(Colors.red_to_white, f'Skipping non-base64 or empty image for {query}'))
+
+        except Exception as e:
+            print(Colorate.Horizontal(Colors.red_to_white, f'Error processing {query}: {e}'))
+
+
+def fast_search_images(queries, covers_dir):
+    os.makedirs(covers_dir, exist_ok=True)
+    for album in queries:
+        album_arr = album.split(',')
+        title = album_arr[0].strip()
+
+        if len(album_arr[1]) > 4:
+            image = album_arr[1].strip()
+            save_image_path = os.path.join(covers_dir, f'{title}.jpg')
+
             try:
-                driver.get('https://images.google.com/')
+                response = requests.get(url=image, stream=True)
+
+                with open(save_image_path, 'wb') as file:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        file.write(chunk)
                 
-                search_input = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.NAME, 'q')))
-                search_input.send_keys(query)
-                search_input.send_keys(Keys.RETURN)
-
-                img = WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, '#rcnt img')))
-                
-                image_url = img.get_attribute('src') or img.get_attribute('data-src')
-
-                if image_url and image_url.startswith('data:image'):
-                    header, encoded = image_url.split(',', 1)
-                    image_data = base64.b64decode(encoded)
-
-                    safe_image_name = query.replace('/', '_').replace('\\', '_')
-                    image_path = os.path.join(covers_dir, f'{safe_image_name}.jpg')
-
-                    with open(image_path, 'wb') as f:
-                        f.write(image_data)
-                    
-                    print(Colorate.Horizontal(Colors.green_to_white, f'Downloaded cover for: {query}'))
-
-                    if delay:
-                        print(f'Pausing for {delay} seconds to avoid bot detection...')
-                        time.sleep(delay)
-
-                else:
-                    print(Colorate.Horizontal(Colors.red_to_white, f'Skipping non-base64 or empty image for {query}'))
-
+                print(Colorate.Horizontal(Colors.green_to_white, f'Downloaded cover for: {title}'))
             except Exception as e:
-                print(Colorate.Horizontal(Colors.red_to_white, f'Error processing {query}: {e}'))
+                print(Colorate.Horizontal(Colors.red_to_white, f'Error processing {title}: {e}'))
+        else:
+            search_image(query=title, covers_dir=covers_dir, delay=0)
