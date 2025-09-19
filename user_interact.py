@@ -1,10 +1,10 @@
 from pystyle import *
 
-from images_handle import fast_search_images, make_collage
+from image.images_handle import fast_search_images, make_collage
 from lastfm import LastfmAPI
-from utils import settings_validate, timestamp_handle, BasePath, SETTINGS, change_setting, process_setting_value, reset_settings
-from ascii_arts import settings_menu
-from validate import *
+from utils.utils import settings_validate, timestamp_handle, BasePath, SETTINGS, change_setting, process_setting_value, reset_settings
+from utils.ascii_arts import settings_menu
+from utils.validate import *
 
 
 def albums_to_text():

@@ -10,7 +10,7 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
-from validate import *
+from utils.validate import *
 
 with open('settings.json', encoding='utf-8') as json_file:
     SETTINGS = json.load(json_file)

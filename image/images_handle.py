@@ -1,11 +1,11 @@
-import difflib
 import os
 import math
 import base64
 import time
 
 import requests
-from PIL import Image
+from PIL import Image, ImageChops
+import numpy as np
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -13,7 +13,25 @@ from selenium.webdriver.common.keys import Keys
 
 from pystyle import *
 
-from utils import initialize_driver, remove_similar_strings
+from utils.utils import initialize_driver, remove_similar_strings
+
+LASTFM_UNKNOWN_PATH = 'image\lastfm_unknown.jpg'
+
+
+def compare_images(img1_path, img2_path):
+    img1 = Image.open(img1_path).convert('RGB')
+    img2 = Image.open(img2_path).convert('RGB')
+
+    if img1.size != img2.size:
+        img1 = img1.resize(size=img2.size)
+    
+    diff = ImageChops.difference(image1=img1, image2=img2)
+
+    similar_pixels = np.count_nonzero(np.array(diff)==0)
+    total_pixels = img1.size[0] * img1.size[1] * 3
+    similarity_percent = float((similar_pixels / total_pixels) * 100)
+
+    return similarity_percent
 
 
 def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=False):
@@ -110,6 +128,7 @@ def fast_search_images(queries, covers_dir, delay):
     os.makedirs(covers_dir, exist_ok=True)
 
     queries = sorted(queries, key=lambda x: len(x.split(',')[-1]), reverse=1)
+    noimages = []
 
     for ind, album in enumerate(queries):
         album_arr = album.split(',')
@@ -127,12 +146,19 @@ def fast_search_images(queries, covers_dir, delay):
                         for chunk in response.iter_content(chunk_size=8192):
                             file.write(chunk)
                     
+                    if compare_images(img1_path=save_image_path, img2_path=LASTFM_UNKNOWN_PATH) > 80:
+                        noimages.append(title)
+                        print(title)
+                        input()
+                    
                     print(Colorate.Horizontal(Colors.green_to_white, f'Downloaded cover for: {title} (url)'))
                 except Exception as e:
                     print(Colorate.Horizontal(Colors.red_to_white, f'Error processing {title} (url): {e}'))
             else:
+                queries += noimages
                 search_image(queries=queries[ind:], covers_dir=covers_dir, delay=delay)
                 return
         else:
+            queries += noimages
             search_image(queries=queries[ind:], covers_dir=covers_dir, delay=delay)
             return

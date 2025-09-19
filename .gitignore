@@ -4,6 +4,4 @@ venv
 **/test_covers/
 albums.txt
 unknown.txt
-*.jpg
-*week
 .env

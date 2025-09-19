@@ -2,9 +2,9 @@ from sys import exit
 
 from pystyle import *
 
-from ascii_arts import LOGO, MAIN_MENU
-from utils import SETTINGS, get_autoname, PathType, FileType
-from validate import *
+from utils.ascii_arts import LOGO, MAIN_MENU
+from utils.utils import SETTINGS, get_autoname, PathType, FileType
+from utils.validate import *
 import user_interact
 
 

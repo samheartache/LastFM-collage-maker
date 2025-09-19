@@ -7,7 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from pystyle import *
 
-from utils import initialize_driver
+from utils.utils import initialize_driver
 
 
 class LastFM:
