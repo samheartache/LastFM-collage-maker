@@ -1,18 +1,32 @@
 import os
 import sys
 import difflib
+import json
 from datetime import datetime, timedelta
-from enum import Enum
+from enum import Enum, auto
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
+with open('settings.json', encoding='utf-8') as json_file:
+    SETTINGS = json.load(json_file)
+
 
 class BasePath(Enum):
     ALBUMS = 'albums.txt'
     UNKNOWN = 'unknown.txt'
+    
+
+class PathType(Enum):
+    DIRECTORY = auto()
+    FILE = auto()
+
+
+class FileType(Enum):
+    JPG = '.jpg'
+    PNG = '.png'
 
 
 def initialize_driver(is_headless=True, logs=False):
@@ -85,3 +99,18 @@ def timestamp_handle(time):
             return int((datetime.now() - timedelta(weeks=1)).timestamp())
         else:
             return int((datetime.now() - timedelta(weeks=4)).timestamp())
+
+def change_setting(setting, value):
+    with open('settings.json', 'w', encoding='utf-8') as json_file:
+        SETTINGS[setting] = value
+        json.dump(SETTINGS, json_file, indent=4)
+
+
+def get_autoname(type: PathType, format: FileType = None, suffix: str = '') -> str:
+    name = f'{datetime.now().strftime("%d.%m.%Y %H:%M")}'
+    if suffix:
+        name += f'- {suffix}'
+    if type == PathType.DIRECTORY:
+        return name
+    elif type == PathType.FILE:
+        return f'{name}{format.value}'

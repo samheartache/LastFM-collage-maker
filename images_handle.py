@@ -31,7 +31,7 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
         images = [Image.open(path) for path in images]
 
         num_images = len(images)
-        cols = int(math.sqrt(num_images))
+        cols = int(num_images ** 0.5)
         rows = math.ceil(num_images / cols)
 
         thumb_size = collage_size // max(cols, rows)
