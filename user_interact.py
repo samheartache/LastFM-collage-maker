@@ -49,9 +49,9 @@ def process_imagesearching(covers_dir=None, delay=1):
 def process_collage(collage_path=None, covers_dir=None):
     s_collage_size = SETTINGS['collage size']
     if not s_collage_size:
-        collage_size = get_valid_input('the size of a collage (height)', validate_num)
+        collage_size = int(get_valid_input('the size of a collage (height)', validate_num))
     else:
-        collage_size = SETTINGS['collage size']
+        collage_size = int(SETTINGS['collage size'])
     
     if collage_path is None:
         auto_collage = SETTINGS['auto name collage file']
