@@ -10,6 +10,8 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
+from validate import *
+
 with open('settings.json', encoding='utf-8') as json_file:
     SETTINGS = json.load(json_file)
 
@@ -27,6 +29,15 @@ class PathType(Enum):
 class FileType(Enum):
     JPG = '.jpg'
     PNG = '.png'
+
+
+settings_validate = {
+    'time': validate_time,
+    'delay': validate_num,
+    'collage size': validate_num,
+    'image directory suffix': lambda x: not validate_bool(x),
+    'collage file suffix': lambda x: not validate_bool(x)
+}
 
 
 def initialize_driver(is_headless=True, logs=False):
@@ -92,6 +103,7 @@ def remove_similar_strings(strings, threshold=0.85):
 
 
 def timestamp_handle(time):
+    time = str(time)
     if time.isdigit():
         return int((datetime.now() - timedelta(days=int(time))).timestamp())
     elif time.lower() in ('week', 'month'):
@@ -106,11 +118,28 @@ def change_setting(setting, value):
         json.dump(SETTINGS, json_file, indent=4)
 
 
+def process_setting_value(value: str):
+    if value.lower() == 'true':
+        value = True
+    elif value.lower() == 'false':
+        value = False
+    elif value.isdigit():
+        value = int(value)
+    return value
+
+
 def get_autoname(type: PathType, format: FileType = None, suffix: str = '') -> str:
-    name = f'{datetime.now().strftime("%d.%m.%Y %H:%M")}'
+    name = f'{datetime.now().strftime("%d.%m.%Y %H:%M")}'.replace(':', ' ')
     if suffix:
-        name += f'- {suffix}'
+        name += f' - {suffix}'
     if type == PathType.DIRECTORY:
         return name
     elif type == PathType.FILE:
         return f'{name}{format.value}'
+
+
+def reset_settings(settings: dict):
+    with open('settings.json', 'w', encoding='utf-8') as json_file:
+        for setting in settings:
+            SETTINGS[setting] = None
+        json.dump(SETTINGS, json_file, indent=4)

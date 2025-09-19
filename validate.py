@@ -1,9 +1,12 @@
 from pystyle import *
 
 
-def get_valid_input(value, validation_func):
+def get_valid_input(value, validation_func, enter_message=None):
     while True:
-        user_input = input(Colorate.Horizontal(Colors.cyan_to_green, f'Enter {value}: '))
+        if enter_message is not None:
+            user_input = input(Colorate.Horizontal(Colors.cyan_to_green, enter_message))
+        else:
+            user_input = input(Colorate.Horizontal(Colors.cyan_to_green, f'Enter {value}: '))
         if validation_func(user_input):
             return user_input
         print(Colorate.Vertical(Colors.red_to_white, f'Please enter {value} correctly'))
@@ -14,10 +17,17 @@ def validate_imagepath(path:str):
 
 
 def validate_num(num: str):
-    if num.isdigit():
-        if 1 <= int(num) <= 100:
-            return True
-    return False
+    return num.isdigit()
+
 
 def validate_time(time: str):
     return (time.lower() in ('week', 'month') or time.isdigit())
+
+
+def validate_bool(value):
+    if isinstance(value, str):
+        if value.lower() == 'true':
+            value = True
+        elif value.lower() == 'false':
+            value = False
+    return isinstance(value, bool)

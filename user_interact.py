@@ -2,7 +2,8 @@ from pystyle import *
 
 from images_handle import fast_search_images, make_collage
 from lastfm import LastfmAPI
-from utils import timestamp_handle, BasePath, SETTINGS, change_setting
+from utils import settings_validate, timestamp_handle, BasePath, SETTINGS, change_setting, process_setting_value, reset_settings
+from ascii_arts import settings_menu
 from validate import *
 
 
@@ -64,7 +65,32 @@ def process_collage(collage_path=None, covers_dir=None):
             covers_dir = auto_dir
         else:
             covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name where your images are saved: '))
-            
+
     make_collage(collage_path=collage_path, images_path=covers_dir, collage_size=collage_size)
 
     print(Colorate.Vertical(Colors.green_to_white, f'Your collage is done and saved as {collage_path}'))
+
+
+def settings_interact(settings: dict):
+    SETTINGS_MENU = settings_menu(settings=settings)
+    print(Colorate.Vertical(Colors.red_to_white, SETTINGS_MENU))
+    choice = input()
+    possible_choices = [str(i) for i in range(1, len(settings) + 3)]
+    while choice not in possible_choices:
+        print(Colorate.Vertical(Colors.red_to_white, 'Please enter your choice correctly'))
+        choice = input()
+
+    if choice == possible_choices[-1]:
+        return
+    elif choice == possible_choices[-2]:
+        reset_settings(settings=SETTINGS)
+        settings_interact(settings=SETTINGS)
+        return
+    
+    setting = list(settings.keys())[int(choice) - 1]
+    value = process_setting_value(value=get_valid_input(f'new value for the "{setting}" setting', settings_validate.get(setting, lambda x: True)))
+    change_setting(setting=setting, value=value)
+    
+    print(Colorate.Vertical(Colors.green_to_white, f'The "{setting.capitalize()}" setting was changed successfully.'))
+
+    settings_interact(settings=SETTINGS)
