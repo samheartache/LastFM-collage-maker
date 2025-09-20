@@ -43,7 +43,4 @@ def validate_delete_inds(value):
 
 
 def validate_path(value):
-    for s in value:
-        if s in '<>:"/\|?*':
-            return False
-    return True
+    return all(i not in value for i in '<>:"/\|?*')

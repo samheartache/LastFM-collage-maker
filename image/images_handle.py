@@ -13,7 +13,7 @@ from selenium.webdriver.common.keys import Keys
 
 from pystyle import *
 
-from utils.utils import initialize_driver, remove_similar_strings
+from utils.utils import initialize_driver, remove_similar_strings, make_path_valid
 
 LASTFM_UNKNOWN_PATH = 'image\lastfm_unknown.jpg'
 
@@ -143,6 +143,7 @@ def search_image(queries, covers_dir, delay=3):
                     image_data = base64.b64decode(encoded)
 
                     safe_image_name = query.replace('/', '_').replace('\\', '_')
+                    safe_image_name = make_path_valid(safe_image_name)
                     image_path = os.path.join(covers_dir, f'{safe_image_name}.jpg')
 
                     with open(image_path, 'wb') as f:
@@ -170,6 +171,7 @@ def fast_search_images(queries, covers_dir, delay):
     for ind, album in enumerate(queries):
         album_arr = album.split(',')
         title = album_arr[0].strip()
+        title = make_path_valid(title)
 
         if len(album_arr) > 1:
             if len(album_arr[-1]) > 4:
@@ -177,7 +179,7 @@ def fast_search_images(queries, covers_dir, delay):
                 save_image_path = os.path.join(covers_dir, f'{title}.jpg')
 
                 try:
-                    response = requests.get(url=image, stream=True)
+                    response = requests.get(url=image, stream=True, timeout=3)
 
                     with open(save_image_path, 'wb') as file:
                         for chunk in response.iter_content(chunk_size=8192):

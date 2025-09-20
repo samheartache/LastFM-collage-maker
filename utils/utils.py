@@ -201,3 +201,10 @@ def mv_del_files(inds: str, files_path: str, delete_files: bool=False, mv_dir: s
             filename = os.path.basename(file)
             mv = os.path.join(mv_dir, filename)
             shutil.move(file, mv)
+
+
+def make_path_valid(path: str):
+    forbidden_symbs = '<>:"/\|?*'
+    for s in forbidden_symbs:
+        path = path.replace(s, '')
+    return path
