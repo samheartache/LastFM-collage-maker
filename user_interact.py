@@ -35,7 +35,7 @@ def process_imagesearching(covers_dir=None, delay=1):
 
     if delay:
         s_delay = BASE_SETTINGS['delay']
-        if s_delay:
+        if s_delay is not None:
             delay = s_delay
         else:
             delay = get_valid_input('delay (seconds) between image searching to avoid bot detection', validate_num)

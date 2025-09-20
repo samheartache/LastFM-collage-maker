@@ -1,7 +1,7 @@
 {
     "collage size": 1200,
     "margin": 0,
-    "create numerate collage": false,
+    "create numerate collage": true,
     "scale center": true,
-    "ask about changing the collage": false
+    "ask about changing the collage": true
 }

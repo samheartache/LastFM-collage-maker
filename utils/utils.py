@@ -44,7 +44,10 @@ settings_validate = {
     'delete omitted images': validate_bool,
     'auto name image directory': validate_path,
     'auto name collage file': validate_path,
-    'timeout': validate_num
+    'timeout': validate_num,
+    'default collage directory': validate_path,
+    'delete omitted images': validate_bool,
+    'directory for the omitted images': validate_path
 }
 
 base_settings_defaults = {
@@ -56,6 +59,9 @@ base_settings_defaults = {
     "image directory suffix": None,
     "auto name collage file": False,
     "collage file suffix": None,
+    "default collage directory": "Collages",
+    "delete omitted images": False,
+    "directory for the omitted images": "Omitted"
 }
 
 collage_settings_defaults = {
@@ -204,6 +210,8 @@ def mv_del_files(inds: str, files_path: str, delete_files: bool=False, mv_dir: s
             mv = os.path.join(mv_dir, filename)
             shutil.move(file, mv)
 
+            print(Colorate.Vertical(Colors.red_to_white, file))
+    
 
 def make_path_valid(path: str):
     forbidden_symbs = '<>:"/\|?*'

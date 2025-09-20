@@ -13,7 +13,7 @@ from selenium.webdriver.common.keys import Keys
 
 from pystyle import *
 
-from utils.utils import initialize_driver, remove_similar_strings, make_path_valid
+from utils.utils import BASE_SETTINGS, initialize_driver, remove_similar_strings, make_path_valid
 
 LASTFM_UNKNOWN_PATH = 'image\lastfm_unknown.jpg'
 
@@ -54,6 +54,11 @@ def remove_similar(images_path: str, similarity_percent: int) -> None:
 def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=False, scale=True, numerate=False):
         if (not collage_path.endswith('.jpg')) and (not collage_path.endswith('.png')):
             collage_path += '.jpg'
+        default_collage_dir = BASE_SETTINGS['default collage directory']
+
+        if default_collage_dir:
+            os.makedirs(default_collage_dir, exist_ok=True)
+            collage_path = os.path.join(BASE_SETTINGS['default collage directory'], collage_path)
 
         images = [os.path.join(images_path, filename) for filename in os.listdir(images_path)]
         

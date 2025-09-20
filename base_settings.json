@@ -2,9 +2,12 @@
     "username": null,
     "time": null,
     "delay": 2,
-    "timeout": 1,
+    "timeout": 3,
+    "default collage directory": "Collages",
     "auto name image directory": false,
     "image directory suffix": null,
     "auto name collage file": false,
+    "delete omitted images": false,
+    "directory for the omitted images": "Omitted",
     "collage file suffix": null
 }
