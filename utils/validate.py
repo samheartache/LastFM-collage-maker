@@ -1,3 +1,5 @@
+import re
+
 from pystyle import *
 
 
@@ -24,6 +26,10 @@ def validate_time(time: str):
     return (time.lower() in ('week', 'month') or time.isdigit())
 
 
+def validate_yn(value):
+    return value.lower() in ('y', 'n')
+
+
 def validate_bool(value):
     if isinstance(value, str):
         if value.lower() == 'true':
@@ -31,3 +37,10 @@ def validate_bool(value):
         elif value.lower() == 'false':
             value = False
     return isinstance(value, bool)
+
+
+def validate_delete_inds(value):
+    reg = r'([0-9]+)( [0-9]+)*'
+    if re.fullmatch(reg, value):
+        return True
+    return False

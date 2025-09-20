@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import difflib
 import json
@@ -14,6 +15,9 @@ from utils.validate import *
 
 with open('settings.json', encoding='utf-8') as json_file:
     SETTINGS = json.load(json_file)
+
+with open('collage_settings.json', encoding='utf-8') as json_file:
+    COLLAGE_SETTINGS = json.load(json_file)
 
 
 class BasePath(Enum):
@@ -119,9 +123,9 @@ def change_setting(setting, value):
 
 
 def process_setting_value(value: str):
-    if value.lower() == 'true':
+    if value.lower() == 'true' or value.lower() == 'y':
         value = True
-    elif value.lower() == 'false':
+    elif value.lower() == 'false' or value.lower() == 'n':
         value = False
     elif value.isdigit():
         value = int(value)
@@ -138,8 +142,29 @@ def get_autoname(type: PathType, format: FileType = None, suffix: str = '') -> s
         return f'{name}{format.value}'
 
 
-def reset_settings(settings: dict):
+def reset_settings(settings: dict) -> None:
     with open('settings.json', 'w', encoding='utf-8') as json_file:
         for setting in settings:
             SETTINGS[setting] = None
         json.dump(SETTINGS, json_file, indent=4)
+
+
+def mv_del_files(inds: str, files_path: str, delete_files: bool=False, mv_dir: str | None=None) -> None:
+    inds_lst = list(map(int, inds.split()))
+    omit_files = set()
+
+    for ind, file in enumerate(os.listdir(files_path), start=1):
+        file_path = os.path.join(files_path, file)
+        if ind in inds_lst:
+            omit_files.add(file_path)
+    
+    if delete_files:
+        for file in omit_files:
+            os.remove(file)
+    else:
+        os.makedirs(mv_dir, exist_ok=True)
+
+        for file in omit_files:
+            filename = os.path.basename(file)
+            mv = os.path.join(mv_dir, filename)
+            shutil.move(file, mv)

@@ -6,5 +6,6 @@
     "image directory suffix": null,
     "auto name collage file": null,
     "collage file suffix": null,
-    "collage size": null
+    "delete omitted images": null,
+    "directory for the omitted images": null
 }

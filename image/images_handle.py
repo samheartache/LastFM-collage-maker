@@ -4,7 +4,7 @@ import base64
 import time
 
 import requests
-from PIL import Image, ImageChops
+from PIL import Image, ImageChops, ImageDraw, ImageFont
 import numpy as np
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -51,11 +51,12 @@ def remove_similar(images_path: str, similarity_percent: int) -> None:
         os.remove(path=image_path)
 
 
-def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=False):
+def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=False, scale=True, numerate=False):
         if (not collage_path.endswith('.jpg')) and (not collage_path.endswith('.png')):
             collage_path += '.jpg'
 
         images = [os.path.join(images_path, filename) for filename in os.listdir(images_path)]
+        
         if not images:
             print(Colorate.Horizontal(Colors.red_to_white, 'No images to make collage of'))
             return
@@ -75,18 +76,39 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
 
         x = margin
         y = margin
-        for idx, img in enumerate(images):
+
+        for idx, img in enumerate(images, start=1):
+            if scale:
+                img = scale_center(img)
+
             img = img.resize((thumb_size, thumb_size), Image.LANCZOS)
+
+
+            if numerate:
+                font = ImageFont.load_default(size=(thumb_size // 8))
+                draw = ImageDraw.Draw(img)
+                num_text = str(idx)
+
+                text_box = draw.textbbox((0, 0), num_text, font=font)
+                text_box_w = text_box[2] - text_box[0] + 10
+                text_box_h = text_box[3] - text_box[1] + 10
+
+                pos = (thumb_size - text_box_w, thumb_size - text_box_h)
+                pos_text = (thumb_size - text_box_w + (int(text_box_w * 0.1)), thumb_size - text_box_h - (int(text_box_h * 0.1)))
+
+                draw.rectangle([pos, (pos[0] + text_box_w, pos[1] + text_box_h)], fill=(0, 0, 0))
+                draw.text(pos_text, num_text, font=font, fill=(255, 255, 255))
+            
             collage_image.paste(img, (x, y))
             x += thumb_size + margin
-            if (idx + 1) % cols == 0:
+            if idx % cols == 0:
                 x = margin
                 y += thumb_size + margin 
 
         collage_image.save(collage_path)
 
 
-def crop_center(img):
+def scale_center(img):
     width, height = img.size
     new_side = min(width, height)
     left = (width - new_side) // 2

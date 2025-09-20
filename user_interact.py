@@ -2,9 +2,9 @@ from pystyle import *
 
 from image.images_handle import fast_search_images, make_collage
 from lastfm import LastfmAPI
-from utils.utils import settings_validate, timestamp_handle, BasePath, SETTINGS, change_setting, process_setting_value, reset_settings
 from utils.ascii_arts import settings_menu
 from utils.validate import *
+from utils.utils import *
 
 
 def albums_to_text():
@@ -12,7 +12,6 @@ def albums_to_text():
         username = SETTINGS['username']
     else:
         username = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter your LastFM username: '))
-        change_setting(setting='username', value=username)
 
     if SETTINGS['time']:
         time = timestamp_handle(time=SETTINGS['time'])
@@ -46,34 +45,64 @@ def process_imagesearching(covers_dir=None, delay=1):
     print(Colorate.Vertical(Colors.green_to_white, f'All album covers were saved in {covers_dir}'))
 
 
-def process_collage(collage_path=None, covers_dir=None):
-    s_collage_size = SETTINGS['collage size']
-    if not s_collage_size:
-        collage_size = int(get_valid_input('the size of a collage (height)', validate_num))
+def process_collage(collage_path=None, covers_dir=None, collage_size=None):
+    if collage_size is None:
+        s_collage_size = COLLAGE_SETTINGS['collage size']
+        if s_collage_size is None:
+            collage_size = int(get_valid_input('the size of a collage (height)', validate_num))
+        else:
+            collage_size = s_collage_size
+    
+    s_margin = COLLAGE_SETTINGS['margin']
+    if not str(s_margin).isdigit():
+        margin = int(get_valid_input('the margin between images of the collage', validate_num))
     else:
-        collage_size = int(SETTINGS['collage size'])
+        margin = s_margin
+    
+    s_scale = COLLAGE_SETTINGS['scale center']
+    if s_scale is None:
+        scale = process_setting_value(get_valid_input(value='your choice', enter_message='Scale images to the center to avoid image distortion? (y/n)', validation_func=validate_yn))
+    else:
+        scale = s_scale
     
     if collage_path is None:
         auto_collage = SETTINGS['auto name collage file']
         if isinstance(auto_collage, str):
             collage_path = auto_collage
+        elif auto_collage == True:
+            collage_path = get_autoname(type=PathType.FILE, format=FileType.JPG, suffix=SETTINGS['collage file suffix'])
         else:
             collage_path = get_valid_input('file name for the collage (.jpg, .png)', validate_imagepath)
+
     if covers_dir is None:
         auto_dir = SETTINGS['auto name image directory']
         if isinstance(auto_dir, str):
             covers_dir = auto_dir
+        elif auto_dir == True:
+            covers_dir = get_autoname(type=PathType.DIRECTORY, suffix=SETTINGS['image directory suffix'])
         else:
             covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name where your images are saved: '))
 
-    make_collage(collage_path=collage_path, images_path=covers_dir, collage_size=collage_size)
+    make_collage(collage_path=collage_path, images_path=covers_dir, collage_size=collage_size, margin=margin, scale=scale)
+    print(Colorate.Vertical(Colors.green_to_white, f'Your collage is done and saved as "{collage_path}"'))
 
-    print(Colorate.Vertical(Colors.green_to_white, f'Your collage is done and saved as {collage_path}'))
+    numerate = COLLAGE_SETTINGS['create numerate collage']
+    if numerate:
+        make_collage(collage_path=f'num - {collage_path}', images_path=covers_dir, collage_size=collage_size, margin=margin, scale=scale, numerate=True)
+        print(Colorate.Vertical(Colors.green_to_white, f'Collage with numerate images is done and saved as "num - {collage_path}"'))
+    
+    change_choice = COLLAGE_SETTINGS['ask about changing the collage']
+    if change_choice:
+        choice = process_setting_value(get_valid_input(value='your choice', enter_message='Do you want to change your collage by deleting certain images by their index? (y/n)',\
+                                                        validation_func=validate_yn))
+        if choice:
+            process_image_omit(images_path=covers_dir)
+        return
 
 
 def settings_interact(settings: dict):
     SETTINGS_MENU = settings_menu(settings=settings)
-    print(Colorate.Vertical(Colors.red_to_white, SETTINGS_MENU))
+    print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(SETTINGS_MENU)))
     choice = input()
     possible_choices = [str(i) for i in range(1, len(settings) + 3)]
     while choice not in possible_choices:
@@ -94,3 +123,22 @@ def settings_interact(settings: dict):
     print(Colorate.Vertical(Colors.green_to_white, f'The "{setting.capitalize()}" setting was changed successfully.'))
 
     settings_interact(settings=SETTINGS)
+
+
+def process_image_omit(images_path=None):
+    delete_files = SETTINGS['delete omitted images']
+
+    if not images_path:
+        auto_dir = SETTINGS['auto name image directory']
+        if isinstance(auto_dir, str):
+            images_path = auto_dir
+        else:
+            images_path = get_valid_input('the name of the directory where your collage images are stored', lambda x: True)
+
+    delete_inds = get_valid_input('the index numbers of images you want to delete from a collage (eg - 1 2 10)', validate_delete_inds)
+    if delete_files:
+        mv_del_files(inds=delete_inds, files_path=images_path, delete_files=True)
+    else:
+        mv_del_files(inds=delete_inds, files_path=images_path, mv_dir=SETTINGS['directory for the omitted images'])
+    
+    process_collage(covers_dir=images_path)

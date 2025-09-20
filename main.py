@@ -3,7 +3,7 @@ from sys import exit
 from pystyle import *
 
 from utils.ascii_arts import LOGO, MAIN_MENU
-from utils.utils import SETTINGS, get_autoname, PathType, FileType
+from utils.utils import COLLAGE_SETTINGS, SETTINGS, get_autoname, PathType, FileType
 from utils.validate import *
 import user_interact
 
@@ -13,7 +13,7 @@ def main():
     print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(MAIN_MENU)))
 
     choice = input()
-    while choice not in '1234567':
+    while choice not in '12345678':
         print(Colorate.Vertical(Colors.red_to_white, 'Please enter your choice correctly'))
         choice = input()
     
@@ -22,6 +22,10 @@ def main():
         auto_collage = SETTINGS['auto name collage file']
         dir_suffix = SETTINGS['image directory suffix']
         collage_suffix = SETTINGS['collage file suffix']
+        collage_size = COLLAGE_SETTINGS['collage size']
+
+        if collage_size is None:
+            collage_size = int(get_valid_input('the size of a collage (height)', validate_num))
 
         if auto_dir:
             if isinstance(auto_dir, str):
@@ -41,7 +45,7 @@ def main():
 
         user_interact.albums_to_text()
         user_interact.process_imagesearching(covers_dir=covers_dir, delay=0)
-        user_interact.process_collage(covers_dir=covers_dir, collage_path=collage_path)
+        user_interact.process_collage(covers_dir=covers_dir, collage_path=collage_path, collage_size=collage_size)
  
     elif choice == '2':
         user_interact.albums_to_text()
@@ -55,7 +59,10 @@ def main():
     elif choice == '5':
         user_interact.settings_interact(settings=SETTINGS)
     
-    elif choice == '7':
+    elif choice == '6':
+        user_interact.process_image_omit()
+    
+    elif choice == '8':
         exit()
 
 
