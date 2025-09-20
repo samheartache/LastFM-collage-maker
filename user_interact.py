@@ -72,7 +72,7 @@ def process_collage(collage_path=None, covers_dir=None, collage_size=None):
         elif auto_collage == True:
             collage_path = get_autoname(type=PathType.FILE, format=FileType.JPG, suffix=BASE_SETTINGS['collage file suffix'])
         else:
-            collage_path = get_valid_input('file name for the collage (.jpg, .png)', validate_imagepath)
+            collage_path = get_valid_input('file name for the collage', validate_path)
 
     if covers_dir is None:
         auto_dir = BASE_SETTINGS['auto name image directory']

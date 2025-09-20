@@ -14,10 +14,6 @@ def get_valid_input(value, validation_func, enter_message=None):
         print(Colorate.Vertical(Colors.red_to_white, f'Please enter {value} correctly'))
 
 
-def validate_imagepath(path:str):
-    return (path.strip().endswith('.jpg') or path.strip().endswith('.png'))
-
-
 def validate_num(num: str):
     return num.isdigit()
 
@@ -44,3 +40,10 @@ def validate_delete_inds(value):
     if re.fullmatch(reg, value):
         return True
     return False
+
+
+def validate_path(value):
+    for s in value:
+        if s in '<>:"/\|?*':
+            return False
+    return True

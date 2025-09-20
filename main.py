@@ -41,7 +41,7 @@ def main():
             else:
                 collage_path = get_autoname(type=PathType.FILE, format=FileType.JPG, suffix=collage_suffix)
         else:
-            collage_path = get_valid_input('file name for the collage (.jpg, .png)', validate_imagepath)
+            collage_path = get_valid_input('file name for the collage', validate_path)
 
         user_interact.albums_to_text()
         user_interact.process_imagesearching(covers_dir=covers_dir, delay=0)
