@@ -5,3 +5,6 @@ venv
 albums.txt
 unknown.txt
 .env
+*week*
+*collage*
+test.py

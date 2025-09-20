@@ -19,19 +19,36 @@ LASTFM_UNKNOWN_PATH = 'image\lastfm_unknown.jpg'
 
 
 def compare_images(img1_path, img2_path):
-    img1 = Image.open(img1_path).convert('RGB')
-    img2 = Image.open(img2_path).convert('RGB')
+    img1 = Image.open(img1_path).convert('L')
+    img2 = Image.open(img2_path).convert('L')
 
-    if img1.size != img2.size:
+    if img1.size > img2.size:
         img1 = img1.resize(size=img2.size)
+    elif img1.size < img2.size:
+        img2 = img2.resize(size=img1.size)
     
     diff = ImageChops.difference(image1=img1, image2=img2)
 
     similar_pixels = np.count_nonzero(np.array(diff)==0)
-    total_pixels = img1.size[0] * img1.size[1] * 3
+    total_pixels = img1.size[0] * img1.size[1]
     similarity_percent = float((similar_pixels / total_pixels) * 100)
 
     return similarity_percent
+
+
+def remove_similar(images_path: str, similarity_percent: int) -> None:
+    images = os.listdir(images_path)
+    to_remove = []
+
+    for ind, origin_image in enumerate(images):
+        origin_image_path = os.path.join(images_path, origin_image)
+        for compare_image in images[ind:]:
+            compare_image_path = os.path.join(images_path, compare_image)
+            if compare_images(img1_path=origin_image_path, img2_path=compare_image_path) > similarity_percent:
+                to_remove.append(origin_image_path)
+    
+    for image_path in to_remove:
+        os.remove(path=image_path)
 
 
 def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=False):
@@ -54,31 +71,29 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
 
         thumb_size = collage_size // max(cols, rows)
 
-        collage_image = Image.new('RGB', (thumb_size * cols, thumb_size * rows), color='white')
-
-        def crop_center(img):
-            width, height = img.size
-            new_side = min(width, height)
-            left = (width - new_side) // 2
-            top = (height - new_side) // 2
-            right = (width + new_side) // 2
-            bottom = (height + new_side) // 2
-            return img.crop((left, top, right, bottom))
+        collage_image = Image.new('RGB', (thumb_size * cols + (margin * (cols + 1)), thumb_size * rows + (margin * (rows + 1))), color='white')
 
         x = margin
         y = margin
-
-        for img in images:
-            img = crop_center(img)
+        for idx, img in enumerate(images):
             img = img.resize((thumb_size, thumb_size), Image.LANCZOS)
-            collage_image.paste(img, (x * thumb_size, y * thumb_size))
-
-            x += 1
-            if x >= cols:
-                x = 0
-                y += 1
+            collage_image.paste(img, (x, y))
+            x += thumb_size + margin
+            if (idx + 1) % cols == 0:
+                x = margin
+                y += thumb_size + margin 
 
         collage_image.save(collage_path)
+
+
+def crop_center(img):
+    width, height = img.size
+    new_side = min(width, height)
+    left = (width - new_side) // 2
+    top = (height - new_side) // 2
+    right = (width + new_side) // 2
+    bottom = (height + new_side) // 2
+    return img.crop((left, top, right, bottom))
 
 
 def search_image(queries, covers_dir, delay=3):
@@ -148,8 +163,6 @@ def fast_search_images(queries, covers_dir, delay):
                     
                     if compare_images(img1_path=save_image_path, img2_path=LASTFM_UNKNOWN_PATH) > 80:
                         noimages.append(title)
-                        print(title)
-                        input()
                     
                     print(Colorate.Horizontal(Colors.green_to_white, f'Downloaded cover for: {title} (url)'))
                 except Exception as e:
