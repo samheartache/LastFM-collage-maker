@@ -43,17 +43,19 @@ settings_validate = {
     'collage file suffix': lambda x: not validate_bool(x) and validate_path(x),
     'delete omitted images': validate_bool,
     'auto name image directory': validate_path,
-    'auto name collage file': validate_path
+    'auto name collage file': validate_path,
+    'timeout': validate_num
 }
 
 base_settings_defaults = {
     "username": None,
     "time": None,
     "delay": 2,
+    "timeout": 3,
     "auto name image directory": False,
     "image directory suffix": None,
     "auto name collage file": False,
-    "collage file suffix": None
+    "collage file suffix": None,
 }
 
 collage_settings_defaults = {

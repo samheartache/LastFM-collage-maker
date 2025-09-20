@@ -2,6 +2,7 @@
     "username": null,
     "time": null,
     "delay": 2,
+    "timeout": 1,
     "auto name image directory": false,
     "image directory suffix": null,
     "auto name collage file": false,

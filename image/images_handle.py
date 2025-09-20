@@ -162,7 +162,7 @@ def search_image(queries, covers_dir, delay=3):
                 print(Colorate.Horizontal(Colors.red_to_white, f'Error processing {query}: {e}'))
 
 
-def fast_search_images(queries, covers_dir, delay):
+def fast_search_images(queries, covers_dir, delay, timeout):
     os.makedirs(covers_dir, exist_ok=True)
 
     queries = sorted(queries, key=lambda x: len(x.split(',')[-1]), reverse=1)
@@ -179,7 +179,7 @@ def fast_search_images(queries, covers_dir, delay):
                 save_image_path = os.path.join(covers_dir, f'{title}.jpg')
 
                 try:
-                    response = requests.get(url=image, stream=True, timeout=3)
+                    response = requests.get(url=image, stream=True, timeout=timeout)
 
                     with open(save_image_path, 'wb') as file:
                         for chunk in response.iter_content(chunk_size=8192):

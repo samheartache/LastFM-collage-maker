@@ -40,7 +40,7 @@ def process_imagesearching(covers_dir=None, delay=1):
         else:
             delay = get_valid_input('delay (seconds) between image searching to avoid bot detection', validate_num)
 
-    fast_search_images(queries=queries, covers_dir=covers_dir, delay=int(delay))
+    fast_search_images(queries=queries, covers_dir=covers_dir, delay=int(delay), timeout=BASE_SETTINGS['timeout'])
 
     print(Colorate.Vertical(Colors.green_to_white, f'All album covers were saved in {covers_dir}'))
 

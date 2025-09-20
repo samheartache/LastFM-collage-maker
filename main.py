@@ -44,7 +44,7 @@ def main():
             collage_path = get_valid_input('file name for the collage', validate_path)
 
         user_interact.albums_to_text()
-        user_interact.process_imagesearching(covers_dir=covers_dir, delay=0)
+        user_interact.process_imagesearching(covers_dir=covers_dir)
         user_interact.process_collage(covers_dir=covers_dir, collage_path=collage_path, collage_size=collage_size)
  
     elif choice == '2':
