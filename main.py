@@ -57,7 +57,7 @@ def main():
         user_interact.process_collage()
     
     elif choice == '5':
-        user_interact.settings_interact(settings=SETTINGS)
+        user_interact.settings_interact(settings=SETTINGS, swap_smenu_caption='Change/view the collage settings')
     
     elif choice == '6':
         user_interact.process_image_omit()

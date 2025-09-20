@@ -100,11 +100,11 @@ def process_collage(collage_path=None, covers_dir=None, collage_size=None):
         return
 
 
-def settings_interact(settings: dict):
-    SETTINGS_MENU = settings_menu(settings=settings)
+def settings_interact(settings: dict, swap_smenu_caption: str, first_page: bool=True):
+    SETTINGS_MENU = settings_menu(settings=settings, swap_smenu_caption=swap_smenu_caption)
     print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(SETTINGS_MENU)))
     choice = input()
-    possible_choices = [str(i) for i in range(1, len(settings) + 3)]
+    possible_choices = [str(i) for i in range(1, len(settings) + 4)]
     while choice not in possible_choices:
         print(Colorate.Vertical(Colors.red_to_white, 'Please enter your choice correctly'))
         choice = input()
@@ -113,16 +113,26 @@ def settings_interact(settings: dict):
         return
     elif choice == possible_choices[-2]:
         reset_settings(settings=SETTINGS)
-        settings_interact(settings=SETTINGS)
+        settings_interact(settings=SETTINGS, swap_smenu_caption=swap_smenu_caption)
         return
+    elif choice == possible_choices[-3]:
+        if first_page:
+            settings_interact(settings=COLLAGE_SETTINGS, swap_smenu_caption='Go back to the base settings', first_page=False)
+            return
+        else:
+            settings_interact(settings=SETTINGS, swap_smenu_caption='Change/view the collage settings')
+            return
     
     setting = list(settings.keys())[int(choice) - 1]
     value = process_setting_value(value=get_valid_input(f'new value for the "{setting}" setting', settings_validate.get(setting, lambda x: True)))
-    change_setting(setting=setting, value=value)
+    change_setting(setting=setting, value=value, is_collage_setting=bool(not first_page))
     
     print(Colorate.Vertical(Colors.green_to_white, f'The "{setting.capitalize()}" setting was changed successfully.'))
 
-    settings_interact(settings=SETTINGS)
+    if first_page:
+        settings_interact(settings=SETTINGS, swap_smenu_caption=swap_smenu_caption)
+    else:
+        settings_interact(settings=COLLAGE_SETTINGS, swap_smenu_caption=swap_smenu_caption, first_page=False)
 
 
 def process_image_omit(images_path=None):

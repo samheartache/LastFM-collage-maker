@@ -40,7 +40,9 @@ settings_validate = {
     'delay': validate_num,
     'collage size': validate_num,
     'image directory suffix': lambda x: not validate_bool(x),
-    'collage file suffix': lambda x: not validate_bool(x)
+    'collage file suffix': lambda x: not validate_bool(x),
+    'delete omitted images': validate_bool,
+
 }
 
 
@@ -116,11 +118,17 @@ def timestamp_handle(time):
         else:
             return int((datetime.now() - timedelta(weeks=4)).timestamp())
 
-def change_setting(setting, value):
-    with open('settings.json', 'w', encoding='utf-8') as json_file:
-        SETTINGS[setting] = value
-        json.dump(SETTINGS, json_file, indent=4)
 
+def change_setting(setting, value, is_collage_setting=False):
+    if not is_collage_setting:
+        with open('settings.json', 'w', encoding='utf-8') as json_file:
+            SETTINGS[setting] = value
+            json.dump(SETTINGS, json_file, indent=4)
+    else:
+        with open('collage_settings.json', 'w', encoding='utf-8') as json_file:
+            COLLAGE_SETTINGS[setting] = value
+            json.dump(COLLAGE_SETTINGS, json_file, indent=4)
+ 
 
 def process_setting_value(value: str):
     if value.lower() == 'true' or value.lower() == 'y':
