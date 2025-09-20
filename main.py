@@ -3,7 +3,7 @@ from sys import exit
 from pystyle import *
 
 from utils.ascii_arts import LOGO, MAIN_MENU
-from utils.utils import COLLAGE_SETTINGS, SETTINGS, get_autoname, PathType, FileType
+from utils.utils import COLLAGE_SETTINGS, BASE_SETTINGS, get_autoname, PathType, FileType
 from utils.validate import *
 import user_interact
 
@@ -18,10 +18,10 @@ def main():
         choice = input()
     
     if choice == '1':
-        auto_dir = SETTINGS['auto name image directory']
-        auto_collage = SETTINGS['auto name collage file']
-        dir_suffix = SETTINGS['image directory suffix']
-        collage_suffix = SETTINGS['collage file suffix']
+        auto_dir = BASE_SETTINGS['auto name image directory']
+        auto_collage = BASE_SETTINGS['auto name collage file']
+        dir_suffix = BASE_SETTINGS['image directory suffix']
+        collage_suffix = BASE_SETTINGS['collage file suffix']
         collage_size = COLLAGE_SETTINGS['collage size']
 
         if collage_size is None:
@@ -57,7 +57,7 @@ def main():
         user_interact.process_collage()
     
     elif choice == '5':
-        user_interact.settings_interact(settings=SETTINGS, swap_smenu_caption='Change/view the collage settings')
+        user_interact.settings_interact(settings=BASE_SETTINGS, swap_smenu_caption='Change/view the collage settings')
     
     elif choice == '6':
         user_interact.process_image_omit()

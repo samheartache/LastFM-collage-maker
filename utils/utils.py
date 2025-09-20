@@ -13,8 +13,8 @@ from selenium.webdriver.chrome.service import Service
 
 from utils.validate import *
 
-with open('settings.json', encoding='utf-8') as json_file:
-    SETTINGS = json.load(json_file)
+with open('base_settings.json', encoding='utf-8') as json_file:
+    BASE_SETTINGS = json.load(json_file)
 
 with open('collage_settings.json', encoding='utf-8') as json_file:
     COLLAGE_SETTINGS = json.load(json_file)
@@ -42,7 +42,24 @@ settings_validate = {
     'image directory suffix': lambda x: not validate_bool(x),
     'collage file suffix': lambda x: not validate_bool(x),
     'delete omitted images': validate_bool,
+}
 
+base_settings_defaults = {
+    "username": None,
+    "time": None,
+    "delay": 2,
+    "auto name image directory": False,
+    "image directory suffix": None,
+    "auto name collage file": False,
+    "collage file suffix": None
+}
+
+collage_settings_defaults = {
+    "collage size": 1200,
+    "margin": 0,
+    "create numerate collage": False,
+    "scale center": True,
+    "ask about changing the collage": False
 }
 
 
@@ -121,9 +138,9 @@ def timestamp_handle(time):
 
 def change_setting(setting, value, is_collage_setting=False):
     if not is_collage_setting:
-        with open('settings.json', 'w', encoding='utf-8') as json_file:
-            SETTINGS[setting] = value
-            json.dump(SETTINGS, json_file, indent=4)
+        with open('base_settings.json', 'w', encoding='utf-8') as json_file:
+            BASE_SETTINGS[setting] = value
+            json.dump(BASE_SETTINGS, json_file, indent=4)
     else:
         with open('collage_settings.json', 'w', encoding='utf-8') as json_file:
             COLLAGE_SETTINGS[setting] = value
@@ -150,11 +167,17 @@ def get_autoname(type: PathType, format: FileType = None, suffix: str = '') -> s
         return f'{name}{format.value}'
 
 
-def reset_settings(settings: dict) -> None:
-    with open('settings.json', 'w', encoding='utf-8') as json_file:
-        for setting in settings:
-            SETTINGS[setting] = None
-        json.dump(SETTINGS, json_file, indent=4)
+def reset_settings(defaults: dict, is_collage_settings: bool=False) -> None:
+    if not is_collage_settings:
+        with open('base_settings.json', 'w', encoding='utf-8') as json_file:
+            for key, value in defaults.items():
+                BASE_SETTINGS[key] = value
+            json.dump(BASE_SETTINGS, json_file, indent=4)
+    else:
+        with open('collage_settings.json', 'w', encoding='utf-8') as json_file:
+            for key, value in defaults.items():
+                COLLAGE_SETTINGS[key] = value
+            json.dump(COLLAGE_SETTINGS, json_file, indent=4)
 
 
 def mv_del_files(inds: str, files_path: str, delete_files: bool=False, mv_dir: str | None=None) -> None:
