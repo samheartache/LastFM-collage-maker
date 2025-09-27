@@ -1,7 +1,7 @@
 from pystyle import *
 
 from image.images_handle import fast_search_images, make_collage
-from lastfm import LastfmAPI
+from lastfm.lastfm import LastfmAPI
 from utils.ascii_arts import settings_menu
 from utils.validate import *
 from utils.utils import *

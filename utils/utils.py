@@ -13,10 +13,10 @@ from selenium.webdriver.chrome.service import Service
 
 from utils.validate import *
 
-with open('base_settings.json', encoding='utf-8') as json_file:
+with open('config/base_settings.json', encoding='utf-8') as json_file:
     BASE_SETTINGS = json.load(json_file)
 
-with open('collage_settings.json', encoding='utf-8') as json_file:
+with open('config/collage_settings.json', encoding='utf-8') as json_file:
     COLLAGE_SETTINGS = json.load(json_file)
 
 
@@ -148,11 +148,11 @@ def timestamp_handle(time):
 
 def change_setting(setting, value, is_collage_setting=False):
     if not is_collage_setting:
-        with open('base_settings.json', 'w', encoding='utf-8') as json_file:
+        with open('config/base_settings.json', 'w', encoding='utf-8') as json_file:
             BASE_SETTINGS[setting] = value
             json.dump(BASE_SETTINGS, json_file, indent=4)
     else:
-        with open('collage_settings.json', 'w', encoding='utf-8') as json_file:
+        with open('config/collage_settings.json', 'w', encoding='utf-8') as json_file:
             COLLAGE_SETTINGS[setting] = value
             json.dump(COLLAGE_SETTINGS, json_file, indent=4)
  
@@ -179,12 +179,12 @@ def get_autoname(type: PathType, format: FileType = None, suffix: str = '') -> s
 
 def reset_settings(defaults: dict, is_collage_settings: bool=False) -> None:
     if not is_collage_settings:
-        with open('base_settings.json', 'w', encoding='utf-8') as json_file:
+        with open('config/base_settings.json', 'w', encoding='utf-8') as json_file:
             for key, value in defaults.items():
                 BASE_SETTINGS[key] = value
             json.dump(BASE_SETTINGS, json_file, indent=4)
     else:
-        with open('collage_settings.json', 'w', encoding='utf-8') as json_file:
+        with open('config/collage_settings.json', 'w', encoding='utf-8') as json_file:
             for key, value in defaults.items():
                 COLLAGE_SETTINGS[key] = value
             json.dump(COLLAGE_SETTINGS, json_file, indent=4)
