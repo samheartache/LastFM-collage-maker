@@ -1,4 +1,15 @@
+import json
+
 from utils.validate import *
+
+BASE_SETTINGS_PATH = 'settings/base_settings.json'
+COLLAGE_SETTINGS_PATH = 'settings/collage_settings.json'
+
+with open(BASE_SETTINGS_PATH, encoding='utf-8') as json_file:
+    BASE_SETTINGS = json.load(json_file)
+
+with open(COLLAGE_SETTINGS_PATH, encoding='utf-8') as json_file:
+    COLLAGE_SETTINGS = json.load(json_file)
 
 SETTINGS_VALIDATE = {
     'time': validate_time,

@@ -13,7 +13,11 @@ from selenium.webdriver.common.keys import Keys
 
 from pystyle import *
 
-from utils.utils import BASE_SETTINGS, initialize_driver, remove_similar_strings, make_path_valid
+from utils.selenium import initialize_driver
+from utils.files import make_path_valid
+from utils.utils import remove_similar_strings
+
+from settings.settings_data import BASE_SETTINGS
 
 LASTFM_UNKNOWN_PATH = 'image\lastfm_unknown.jpg'
 

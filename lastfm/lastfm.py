@@ -4,7 +4,7 @@ import dotenv
 import requests
 from bs4 import BeautifulSoup
 
-from utils.utils import BasePath
+from utils.enums import BasePath
 
 dotenv.load_dotenv()
 

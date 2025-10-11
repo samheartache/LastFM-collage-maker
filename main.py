@@ -3,8 +3,11 @@ from sys import exit
 from pystyle import *
 
 from utils.ascii_arts import LOGO_small, LOGO, MAIN_MENU
-from utils.utils import COLLAGE_SETTINGS, BASE_SETTINGS, get_autoname, PathType, FileType
+from utils.files import get_autoname
+from utils.enums import PathType, FileType
 from utils.validate import *
+
+from settings.settings_data import COLLAGE_SETTINGS, BASE_SETTINGS
 import user_interact
 
 
