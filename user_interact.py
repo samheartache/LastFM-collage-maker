@@ -5,6 +5,7 @@ from lastfm.lastfm import LastfmAPI
 from utils.ascii_arts import settings_menu
 from utils.validate import *
 from utils.utils import *
+from config.settings_utils import BASE_SETTINGS_DEFAULTS, COLLAGE_SETTINGS_DEFAULTS, SETTINGS_VALIDATE
 
 
 def albums_to_text():
@@ -113,11 +114,11 @@ def settings_interact(settings: dict, swap_smenu_caption: str, first_page: bool=
         return
     elif choice == possible_choices[-2]:
         if first_page:
-            reset_settings(defaults=base_settings_defaults)
+            reset_settings(defaults=BASE_SETTINGS_DEFAULTS)
             settings_interact(settings=BASE_SETTINGS, swap_smenu_caption=swap_smenu_caption)
             return
         else:
-            reset_settings(defaults=collage_settings_defaults, is_collage_settings=True)
+            reset_settings(defaults=COLLAGE_SETTINGS_DEFAULTS, is_collage_settings=True)
             settings_interact(settings=COLLAGE_SETTINGS, swap_smenu_caption=swap_smenu_caption, first_page=False)
             return
     elif choice == possible_choices[-3]:
@@ -129,7 +130,7 @@ def settings_interact(settings: dict, swap_smenu_caption: str, first_page: bool=
             return
     
     setting = list(settings.keys())[int(choice) - 1]
-    value = process_setting_value(value=get_valid_input(f'new value for the "{setting}" setting', settings_validate.get(setting, lambda x: True)))
+    value = process_setting_value(value=get_valid_input(f'new value for the "{setting}" setting', SETTINGS_VALIDATE.get(setting, lambda x: True)))
     change_setting(setting=setting, value=value, is_collage_setting=bool(not first_page))
     
     print(Colorate.Vertical(Colors.green_to_white, f'The "{setting.capitalize()}" setting was changed successfully.'))
