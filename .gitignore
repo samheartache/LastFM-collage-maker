@@ -1,9 +1,8 @@
 **/__pycache__/
 venv
-**/covers/
-**/test_covers/
 albums.txt
 unknown.txt
 .env
 *week*
 test.py
+Collages

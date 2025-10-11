@@ -28,9 +28,9 @@ def validate_yn(value):
 
 def validate_bool(value):
     if isinstance(value, str):
-        if value.lower() == 'true':
+        if value.lower() == 'true' or value == '1':
             value = True
-        elif value.lower() == 'false':
+        elif value.lower() == 'false' or value == '0':
             value = False
     return isinstance(value, bool)
 

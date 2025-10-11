@@ -2,14 +2,17 @@ from sys import exit
 
 from pystyle import *
 
-from utils.ascii_arts import LOGO, MAIN_MENU
+from utils.ascii_arts import LOGO_small, LOGO, MAIN_MENU
 from utils.utils import COLLAGE_SETTINGS, BASE_SETTINGS, get_autoname, PathType, FileType
 from utils.validate import *
 import user_interact
 
 
 def main():
-    print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(LOGO)))
+    if BASE_SETTINGS['logo'] == 0:
+        print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(LOGO_small)))
+    else:
+        print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(LOGO)))
     print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(MAIN_MENU)))
 
     choice = input()

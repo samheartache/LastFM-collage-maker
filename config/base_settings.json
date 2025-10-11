@@ -9,5 +9,6 @@
     "auto name collage file": false,
     "delete omitted images": false,
     "directory for the omitted images": "Omitted",
-    "collage file suffix": null
+    "collage file suffix": null,
+    "logo": 0
 }

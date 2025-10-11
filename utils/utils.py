@@ -47,7 +47,8 @@ settings_validate = {
     'timeout': validate_num,
     'default collage directory': validate_path,
     'delete omitted images': validate_bool,
-    'directory for the omitted images': validate_path
+    'directory for the omitted images': validate_path,
+    'logo': validate_bool
 }
 
 base_settings_defaults = {
@@ -61,7 +62,8 @@ base_settings_defaults = {
     "collage file suffix": None,
     "default collage directory": "Collages",
     "delete omitted images": False,
-    "directory for the omitted images": "Omitted"
+    "directory for the omitted images": "Omitted",
+    "logo": 0
 }
 
 collage_settings_defaults = {
