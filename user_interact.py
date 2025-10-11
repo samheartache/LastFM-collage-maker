@@ -1,8 +1,9 @@
-from pystyle import *
+from pystyle import Colorate, Colors, Center
 
 from image.images_handle import fast_search_images, make_collage
 from lastfm.lastfm import LastfmAPI
 
+from utils.ascii_arts import LOGO, LOGO_small, MAIN_MENU
 from utils.enums import BasePath, PathType, FileType
 from utils.ascii_arts import settings_menu
 from utils.validate import *
@@ -11,6 +12,68 @@ from utils.files import mv_del_files, get_autoname
 
 from settings.settings_edit import reset_settings, change_setting, process_setting_value
 from settings.settings_data import BASE_SETTINGS, BASE_SETTINGS_DEFAULTS, COLLAGE_SETTINGS, COLLAGE_SETTINGS_DEFAULTS, SETTINGS_VALIDATE
+
+
+def print_main_menu():
+    if BASE_SETTINGS['logo'] == 0:
+        print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(LOGO_small)))
+    else:
+        print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(LOGO)))
+    print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(MAIN_MENU)))
+
+
+def handle_choice(choice):
+    while choice not in '12345678':
+        print(Colorate.Vertical(Colors.red_to_white, 'Please enter your choice correctly'))
+        choice = input()
+    
+    if choice == '1':
+        auto_dir = BASE_SETTINGS['auto name image directory']
+        auto_collage = BASE_SETTINGS['auto name collage file']
+        dir_suffix = BASE_SETTINGS['image directory suffix']
+        collage_suffix = BASE_SETTINGS['collage file suffix']
+        collage_size = COLLAGE_SETTINGS['collage size']
+
+        if collage_size is None:
+            collage_size = int(get_valid_input('the size of a collage (height)', validate_num))
+
+        if auto_dir:
+            if isinstance(auto_dir, str):
+                covers_dir = auto_dir
+            else:
+                covers_dir = get_autoname(type=PathType.DIRECTORY, suffix=dir_suffix)
+        else:
+            covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name for saving images of album covers: '))
+        
+        if auto_collage:
+            if isinstance(auto_collage, str):
+                collage_path = auto_collage
+            else:
+                collage_path = get_autoname(type=PathType.FILE, format=FileType.JPG, suffix=collage_suffix)
+        else:
+            collage_path = get_valid_input('file name for the collage', validate_path)
+
+        albums_to_text()
+        process_imagesearching(covers_dir=covers_dir)
+        process_collage(covers_dir=covers_dir, collage_path=collage_path, collage_size=collage_size)
+ 
+    elif choice == '2':
+        albums_to_text()
+
+    elif choice == '3':
+        process_imagesearching()
+
+    elif choice == '4':
+        process_collage()
+    
+    elif choice == '5':
+        settings_interact(settings=BASE_SETTINGS, swap_smenu_caption='Change/view the collage settings')
+    
+    elif choice == '6':
+        process_image_omit()
+    
+    elif choice == '8':
+        exit()
 
 
 def albums_to_text():

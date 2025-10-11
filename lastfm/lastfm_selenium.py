@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from pystyle import *
+from pystyle import Colorate, Colors
 
 from utils.selenium import initialize_driver
 

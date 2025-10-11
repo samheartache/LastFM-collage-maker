@@ -1,6 +1,6 @@
 import re
 
-from pystyle import *
+from pystyle import Colorate, Colors
 
 
 def get_valid_input(value, validation_func, enter_message=None):
