@@ -19,7 +19,7 @@ from utils.utils import remove_similar_strings
 
 from settings.settings_data import BASE_SETTINGS
 
-LASTFM_UNKNOWN_PATH = 'image\lastfm_unknown.jpg'
+LASTFM_UNKNOWN_PATH = r'image\lastfm_unknown.jpg'
 
 
 def compare_images(img1_path, img2_path):

@@ -43,4 +43,4 @@ def validate_delete_inds(value):
 
 
 def validate_path(value):
-    return all(i not in value for i in '<>:"/\|?*')
+    return all(i not in value for i in r'<>:"/\|?*')
