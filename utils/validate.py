@@ -44,3 +44,10 @@ def validate_delete_inds(value):
 
 def validate_path(value):
     return all(i not in value for i in r'<>:"/\|?*')
+
+
+def validate_menuchoice(value):
+    if value.isdigit():
+        if 1 <= int(value) <= 9:
+            return True
+    return False

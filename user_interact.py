@@ -40,10 +40,6 @@ def error_exit(error_message: str):
 
 
 def handle_choice(choice):
-    while choice not in '123456789':
-        print(Colorate.Vertical(Colors.red_to_white, 'Please enter your choice correctly'))
-        choice = input()
-    
     API_KEY = get_apikey()
     if not check_for_api_key(API_KEY=API_KEY):
         API_KEY = ask_for_apikey()
