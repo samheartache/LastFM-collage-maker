@@ -2,13 +2,14 @@ from pystyle import Colorate, Colors, Center
 
 from image.images_handle import fast_search_images, make_collage
 from lastfm.lastfm import LastfmAPI
+from lastfm.lastfm import get_apikey
 
 from utils.ascii_arts import LOGO, LOGO_small, MAIN_MENU
 from utils.enums import BasePath, PathType, FileType
-from utils.ascii_arts import settings_menu
+from utils.ascii_arts import settings_menu, NOT_API_MESSAGE
 from utils.validate import *
-from utils.utils import timestamp_handle
-from utils.files import mv_del_files, get_autoname
+from utils.utils import timestamp_handle, check_for_api_key
+from utils.files import mv_del_files, get_autoname, write_apikey_to_env_file
 
 from settings.settings_edit import reset_settings, change_setting, process_setting_value
 from settings.settings_data import BASE_SETTINGS, BASE_SETTINGS_DEFAULTS, COLLAGE_SETTINGS, COLLAGE_SETTINGS_DEFAULTS, SETTINGS_VALIDATE
@@ -22,10 +23,22 @@ def print_main_menu():
     print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(MAIN_MENU)))
 
 
+def ask_for_apikey():
+    print(Colorate.Horizontal(Colors.red_to_white, NOT_API_MESSAGE))
+    API_KEY = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter your Lastfm API key: '))
+    write_apikey_to_env_file(api_key=API_KEY)
+
+    return API_KEY
+
+
 def handle_choice(choice):
     while choice not in '12345678':
         print(Colorate.Vertical(Colors.red_to_white, 'Please enter your choice correctly'))
         choice = input()
+    
+    API_KEY = get_apikey()
+    if not check_for_api_key(API_KEY=API_KEY):
+        API_KEY = ask_for_apikey()
     
     if choice == '1':
         auto_dir = BASE_SETTINGS['auto name image directory']
@@ -53,12 +66,12 @@ def handle_choice(choice):
         else:
             collage_path = get_valid_input('file name for the collage', validate_path)
 
-        albums_to_text()
+        albums_to_text(api_key=API_KEY)
         process_imagesearching(covers_dir=covers_dir)
         process_collage(covers_dir=covers_dir, collage_path=collage_path, collage_size=collage_size)
  
     elif choice == '2':
-        albums_to_text()
+        albums_to_text(api_key=API_KEY)
 
     elif choice == '3':
         process_imagesearching()
@@ -76,7 +89,7 @@ def handle_choice(choice):
         exit()
 
 
-def albums_to_text():
+def albums_to_text(api_key: str):
     if BASE_SETTINGS['username']:
         username = BASE_SETTINGS['username']
     else:
@@ -87,7 +100,7 @@ def albums_to_text():
     else:
         time = timestamp_handle(time=get_valid_input('the time from which the albums will be selected', validate_time))
 
-    parser = LastfmAPI(username=username, timestamp=time)
+    parser = LastfmAPI(username=username, API_KEY=api_key, timestamp=time)
     parser.save_to_files()
     print(Colorate.Vertical(Colors.green_to_white, f'All data on your albums was saved to {BasePath.ALBUMS.value} and songs with unknowkn album were saved to {BasePath.UNKNOWN.value}'))
 

@@ -41,7 +41,12 @@ def mv_del_files(inds: str, files_path: str, delete_files: bool=False, mv_dir: s
 
 
 def make_path_valid(path: str):
-    forbidden_symbs = '<>:"/\|?*'
+    forbidden_symbs = r'<>:"/\|?*'
     for s in forbidden_symbs:
         path = path.replace(s, '')
     return path
+
+
+def write_apikey_to_env_file(api_key: str):
+    with open('.env', 'w') as env_file:
+        env_file.write(f"API_KEY = '{api_key}'")

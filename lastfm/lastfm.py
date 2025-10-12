@@ -6,21 +6,25 @@ from bs4 import BeautifulSoup
 
 from utils.enums import BasePath
 
-dotenv.load_dotenv()
 
-API_KEY = os.getenv('API_KEY')
+def get_apikey():
+    dotenv.load_dotenv()
+    API_KEY = os.getenv('API_KEY')
+
+    return API_KEY
 
 
 class LastfmAPI:
-    def __init__(self, username: str, timestamp=None, limit=1000):
+    def __init__(self, username: str, API_KEY: str, timestamp=None, limit=1000):
         self.username = username
+        self.API_KEY = API_KEY
         self.timestamp = timestamp
         self.limit = limit
         self.not_found = set()
         self.albums = self.get_user_albums()
     
     def get_user_albums(self) -> list:
-        url = f'https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user={self.username}&api_key={API_KEY}&format=json'
+        url = f'https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user={self.username}&api_key={self.API_KEY}&format=json'
         result_albums = []
         track_titles = set()
         album_titles = set()

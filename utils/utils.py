@@ -2,6 +2,10 @@ import difflib
 from datetime import datetime, timedelta
 
 
+def check_for_api_key(API_KEY):
+    return bool(API_KEY)
+
+
 def remove_similar_strings(strings, threshold=0.85):
     result = []
     for s in strings:

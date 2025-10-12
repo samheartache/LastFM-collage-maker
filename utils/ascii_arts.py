@@ -39,6 +39,11 @@ MAIN_MENU = '''
 └───────────────────────────────────────────────────────────────────────────────────────────────┘
 '''
 
+NOT_API_MESSAGE = '''
+Looks like you haven't set up your Lastfm API key.
+If you don't have one, you can get it on https://www.last.fm/api/account/create
+'''
+
 
 def settings_menu(settings: dict, swap_smenu_caption: str) -> str:
     upper_row = '┌───────────────────────────────────────────────────────────────────────────────────────────────┐'
