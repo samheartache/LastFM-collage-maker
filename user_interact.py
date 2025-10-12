@@ -23,8 +23,10 @@ def print_main_menu():
     print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(MAIN_MENU)))
 
 
-def ask_for_apikey():
-    print(Colorate.Horizontal(Colors.red_to_white, NOT_API_MESSAGE))
+def ask_for_apikey(change=False):
+    if not change:
+        print(Colorate.Horizontal(Colors.red_to_white, NOT_API_MESSAGE))
+    
     API_KEY = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter your Lastfm API key: '))
     write_apikey_to_env_file(api_key=API_KEY)
 
@@ -32,7 +34,7 @@ def ask_for_apikey():
 
 
 def handle_choice(choice):
-    while choice not in '12345678':
+    while choice not in '123456789':
         print(Colorate.Vertical(Colors.red_to_white, 'Please enter your choice correctly'))
         choice = input()
     
@@ -85,7 +87,10 @@ def handle_choice(choice):
     elif choice == '6':
         process_image_omit()
     
-    elif choice == '8':
+    elif choice == '7':
+        ask_for_apikey(change=True)
+    
+    elif choice == '9':
         exit()
 
 

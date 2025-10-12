@@ -8,7 +8,7 @@ from utils.enums import BasePath
 
 
 def get_apikey():
-    dotenv.load_dotenv()
+    dotenv.load_dotenv(override=True)
     API_KEY = os.getenv('API_KEY')
 
     return API_KEY

@@ -34,8 +34,9 @@ MAIN_MENU = '''
 │                   [4] Make a collage of already downloaded images                             │
 │                   [5] Change/view default settings                                            │
 │                   [6] Delete images from a collage by the index number                        │
-│                   [7] Guidance on the use                                                     │
-│                   [8] Stop the software                                                       │
+│                   [7] Change Lastfm API key                                                   │
+│                   [8] Guidance on the use                                                     │
+│                   [9] Stop the software                                                       │
 └───────────────────────────────────────────────────────────────────────────────────────────────┘
 '''
 
