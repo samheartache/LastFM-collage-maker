@@ -5,8 +5,9 @@ from lastfm.lastfm import LastfmAPI
 from lastfm.lastfm import get_apikey
 
 from utils.ascii_arts import LOGO, LOGO_small, MAIN_MENU
+from utils.messages import NOT_API_MESSAGE
 from utils.enums import BasePath, PathType, FileType
-from utils.ascii_arts import settings_menu, NOT_API_MESSAGE
+from utils.ascii_arts import settings_menu
 from utils.validate import *
 from utils.utils import timestamp_handle, check_for_api_key
 from utils.files import mv_del_files, get_autoname, write_apikey_to_env_file
@@ -31,6 +32,11 @@ def ask_for_apikey(change=False):
     write_apikey_to_env_file(api_key=API_KEY)
 
     return API_KEY
+
+
+def error_exit(error_message: str):
+    print(Colorate.Horizontal(Colors.red_to_white, error_message))
+    exit()
 
 
 def handle_choice(choice):

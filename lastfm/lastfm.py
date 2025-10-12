@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from utils.enums import BasePath
+from utils.messages import INCORRECT_MESSAGE
 
 
 def get_apikey():
@@ -36,7 +37,13 @@ class LastfmAPI:
         
         response = requests.get(url=url)
         response_json = response.json()
-        recent_tracks = response_json['recenttracks']['track']
+
+        try:
+            recent_tracks = response_json['recenttracks']['track']
+        except KeyError:
+            from user_interact import error_exit
+            
+            error_exit(error_message=INCORRECT_MESSAGE)
 
         for track in recent_tracks:
             info = {}
