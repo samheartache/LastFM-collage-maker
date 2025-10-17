@@ -1,9 +1,12 @@
 import json
+from pathlib import Path
 
 from utils.validate import *
 
-BASE_SETTINGS_PATH = 'settings/base_settings.json'
-COLLAGE_SETTINGS_PATH = 'settings/collage_settings.json'
+SOFT_PATH = Path(__file__).parent.absolute().parent.absolute()
+
+BASE_SETTINGS_PATH = fr'{SOFT_PATH}/settings/base_settings.json'
+COLLAGE_SETTINGS_PATH = fr'{SOFT_PATH}/settings/collage_settings.json'
 
 with open(BASE_SETTINGS_PATH, encoding='utf-8') as json_file:
     BASE_SETTINGS = json.load(json_file)

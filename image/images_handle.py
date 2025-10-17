@@ -17,9 +17,9 @@ from utils.selenium import initialize_driver
 from utils.files import make_path_valid
 from utils.utils import remove_similar_strings
 
-from settings.settings_data import BASE_SETTINGS
+from settings.settings_data import BASE_SETTINGS, SOFT_PATH
 
-LASTFM_UNKNOWN_PATH = r'image/lastfm_unknown.jpg'
+LASTFM_UNKNOWN_PATH = fr'{SOFT_PATH}/image/lastfm_unknown.jpg'
 
 
 def compare_images(img1_path, img2_path):
