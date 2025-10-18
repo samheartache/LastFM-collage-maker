@@ -1,13 +1,13 @@
 import json
 
-from settings.settings_data import BASE_SETTINGS, COLLAGE_SETTINGS, BASE_SETTINGS_PATH, COLLAGE_SETTINGS_PATH
+from settings.settings_data import MAIN_SETTINGS, COLLAGE_SETTINGS, MAIN_SETTINGS_PATH, COLLAGE_SETTINGS_PATH
 
 
 def change_setting(setting, value, is_collage_setting=False):
     if not is_collage_setting:
-        with open(BASE_SETTINGS_PATH, 'w', encoding='utf-8') as json_file:
-            BASE_SETTINGS[setting] = value
-            json.dump(BASE_SETTINGS, json_file, indent=4)
+        with open(MAIN_SETTINGS_PATH, 'w', encoding='utf-8') as json_file:
+            MAIN_SETTINGS[setting] = value
+            json.dump(MAIN_SETTINGS, json_file, indent=4)
     else:
         with open(COLLAGE_SETTINGS_PATH, 'w', encoding='utf-8') as json_file:
             COLLAGE_SETTINGS[setting] = value
@@ -26,10 +26,10 @@ def process_setting_value(value: str):
 
 def reset_settings(defaults: dict, is_collage_settings: bool=False) -> None:
     if not is_collage_settings:
-        with open(BASE_SETTINGS_PATH, 'w', encoding='utf-8') as json_file:
+        with open(MAIN_SETTINGS_PATH, 'w', encoding='utf-8') as json_file:
             for key, value in defaults.items():
-                BASE_SETTINGS[key] = value
-            json.dump(BASE_SETTINGS, json_file, indent=4)
+                MAIN_SETTINGS[key] = value
+            json.dump(MAIN_SETTINGS, json_file, indent=4)
     else:
         with open(COLLAGE_SETTINGS_PATH, 'w', encoding='utf-8') as json_file:
             for key, value in defaults.items():

@@ -13,11 +13,11 @@ from utils.utils import timestamp_handle, check_for_api_key
 from utils.files import mv_del_files, get_autoname, write_apikey_to_env_file
 
 from settings.settings_edit import reset_settings, change_setting, process_setting_value
-from settings.settings_data import BASE_SETTINGS, BASE_SETTINGS_DEFAULTS, COLLAGE_SETTINGS, COLLAGE_SETTINGS_DEFAULTS, SETTINGS_VALIDATE
+from settings.settings_data import MAIN_SETTINGS, MAIN_SETTINGS_DEFAULTS, COLLAGE_SETTINGS, COLLAGE_SETTINGS_DEFAULTS, SETTINGS_VALIDATE
 
 
 def print_main_menu():
-    if BASE_SETTINGS['logo'] == 0:
+    if MAIN_SETTINGS['logo'] == 0:
         print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(LOGO_small)))
     else:
         print(Colorate.Vertical(Colors.red_to_white, Center.XCenter(LOGO)))
@@ -45,10 +45,10 @@ def handle_choice(choice):
         API_KEY = ask_for_apikey()
     
     if choice == '1':
-        auto_dir = BASE_SETTINGS['auto name image directory']
-        auto_collage = BASE_SETTINGS['auto name collage file']
-        dir_suffix = BASE_SETTINGS['image directory suffix']
-        collage_suffix = BASE_SETTINGS['collage file suffix']
+        auto_dir = MAIN_SETTINGS['auto name image directory']
+        auto_collage = MAIN_SETTINGS['auto name collage file']
+        dir_suffix = MAIN_SETTINGS['image directory suffix']
+        collage_suffix = MAIN_SETTINGS['collage file suffix']
         collage_size = COLLAGE_SETTINGS['collage size']
 
         if collage_size is None:
@@ -84,7 +84,7 @@ def handle_choice(choice):
         process_collage()
     
     elif choice == '5':
-        settings_interact(settings=BASE_SETTINGS, swap_smenu_caption='Change/view the collage settings')
+        settings_interact(settings=MAIN_SETTINGS, swap_smenu_caption='Change/view the collage settings')
     
     elif choice == '6':
         process_image_omit()
@@ -97,13 +97,13 @@ def handle_choice(choice):
 
 
 def albums_to_text(api_key: str):
-    if BASE_SETTINGS['username']:
-        username = BASE_SETTINGS['username']
+    if MAIN_SETTINGS['username']:
+        username = MAIN_SETTINGS['username']
     else:
         username = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter your LastFM username: '))
 
-    if BASE_SETTINGS['time']:
-        time = timestamp_handle(time=BASE_SETTINGS['time'])
+    if MAIN_SETTINGS['time']:
+        time = timestamp_handle(time=MAIN_SETTINGS['time'])
     else:
         time = timestamp_handle(time=get_valid_input('the time from which the albums will be selected', validate_time))
 
@@ -116,20 +116,20 @@ def process_imagesearching(covers_dir=None, delay=1):
     queries = [album for album in open(BasePath.ALBUMS.value, encoding='utf-8')]
 
     if covers_dir is None:
-        auto_dir = BASE_SETTINGS['auto name image directory']
+        auto_dir = MAIN_SETTINGS['auto name image directory']
         if isinstance(auto_dir, str):
             covers_dir = auto_dir
         else:
             covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name for saving images of album covers: '))
 
     if delay:
-        s_delay = BASE_SETTINGS['delay']
+        s_delay = MAIN_SETTINGS['delay']
         if s_delay is not None:
             delay = s_delay
         else:
             delay = get_valid_input('delay (seconds) between image searching to avoid bot detection', validate_num)
 
-    fast_search_images(queries=queries, covers_dir=covers_dir, delay=int(delay), timeout=BASE_SETTINGS['timeout'])
+    fast_search_images(queries=queries, covers_dir=covers_dir, delay=int(delay), timeout=MAIN_SETTINGS['timeout'])
 
     print(Colorate.Vertical(Colors.green_to_white, f'All album covers were saved in {covers_dir}'))
 
@@ -155,20 +155,20 @@ def process_collage(collage_path=None, covers_dir=None, collage_size=None):
         scale = s_scale
     
     if collage_path is None:
-        auto_collage = BASE_SETTINGS['auto name collage file']
+        auto_collage = MAIN_SETTINGS['auto name collage file']
         if isinstance(auto_collage, str):
             collage_path = auto_collage
         elif auto_collage == True:
-            collage_path = get_autoname(type=PathType.FILE, format=FileType.JPG, suffix=BASE_SETTINGS['collage file suffix'])
+            collage_path = get_autoname(type=PathType.FILE, format=FileType.JPG, suffix=MAIN_SETTINGS['collage file suffix'])
         else:
             collage_path = get_valid_input('file name for the collage', validate_path)
 
     if covers_dir is None:
-        auto_dir = BASE_SETTINGS['auto name image directory']
+        auto_dir = MAIN_SETTINGS['auto name image directory']
         if isinstance(auto_dir, str):
             covers_dir = auto_dir
         elif auto_dir == True:
-            covers_dir = get_autoname(type=PathType.DIRECTORY, suffix=BASE_SETTINGS['image directory suffix'])
+            covers_dir = get_autoname(type=PathType.DIRECTORY, suffix=MAIN_SETTINGS['image directory suffix'])
         else:
             covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name where your images are saved: '))
 
@@ -202,8 +202,8 @@ def settings_interact(settings: dict, swap_smenu_caption: str, first_page: bool=
         return
     elif choice == possible_choices[-2]:
         if first_page:
-            reset_settings(defaults=BASE_SETTINGS_DEFAULTS)
-            settings_interact(settings=BASE_SETTINGS, swap_smenu_caption=swap_smenu_caption)
+            reset_settings(defaults=MAIN_SETTINGS_DEFAULTS)
+            settings_interact(settings=MAIN_SETTINGS, swap_smenu_caption=swap_smenu_caption)
             return
         else:
             reset_settings(defaults=COLLAGE_SETTINGS_DEFAULTS, is_collage_settings=True)
@@ -214,7 +214,7 @@ def settings_interact(settings: dict, swap_smenu_caption: str, first_page: bool=
             settings_interact(settings=COLLAGE_SETTINGS, swap_smenu_caption='Go back to the base settings', first_page=False)
             return
         else:
-            settings_interact(settings=BASE_SETTINGS, swap_smenu_caption='Change/view the collage settings')
+            settings_interact(settings=MAIN_SETTINGS, swap_smenu_caption='Change/view the collage settings')
             return
     
     setting = list(settings.keys())[int(choice) - 1]
@@ -224,16 +224,16 @@ def settings_interact(settings: dict, swap_smenu_caption: str, first_page: bool=
     print(Colorate.Vertical(Colors.green_to_white, f'The "{setting.capitalize()}" setting was changed successfully.'))
 
     if first_page:
-        settings_interact(settings=BASE_SETTINGS, swap_smenu_caption=swap_smenu_caption)
+        settings_interact(settings=MAIN_SETTINGS, swap_smenu_caption=swap_smenu_caption)
     else:
         settings_interact(settings=COLLAGE_SETTINGS, swap_smenu_caption=swap_smenu_caption, first_page=False)
 
 
 def process_image_omit(images_path=None):
-    delete_files = BASE_SETTINGS['delete omitted images']
+    delete_files = MAIN_SETTINGS['delete omitted images']
 
     if not images_path:
-        auto_dir = BASE_SETTINGS['auto name image directory']
+        auto_dir = MAIN_SETTINGS['auto name image directory']
         if isinstance(auto_dir, str):
             images_path = auto_dir
         else:
@@ -243,6 +243,6 @@ def process_image_omit(images_path=None):
     if delete_files:
         mv_del_files(inds=delete_inds, files_path=images_path, delete_files=True)
     else:
-        mv_del_files(inds=delete_inds, files_path=images_path, mv_dir=BASE_SETTINGS['directory for the omitted images'])
+        mv_del_files(inds=delete_inds, files_path=images_path, mv_dir=MAIN_SETTINGS['directory for the omitted images'])
     
     process_collage(covers_dir=images_path)

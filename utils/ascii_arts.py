@@ -32,7 +32,7 @@ MAIN_MENU = '''
 │                   [2] Parse your albums to text file                                          │
 │                   [3] Download album covers (text file with titles is needed)                 │
 │                   [4] Make a collage of already downloaded images                             │
-│                   [5] Change/view default settings                                            │
+│                   [5] Change/view main settings                                               │
 │                   [6] Delete images from a collage by the index number                        │
 │                   [7] Change Lastfm API key                                                   │
 │                   [8] Guidance on the use                                                     │

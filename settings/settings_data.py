@@ -5,11 +5,11 @@ from utils.validate import *
 
 SOFT_PATH = Path(__file__).parent.absolute().parent.absolute()
 
-BASE_SETTINGS_PATH = fr'{SOFT_PATH}/settings/base_settings.json'
+MAIN_SETTINGS_PATH = fr'{SOFT_PATH}/settings/main_settings.json'
 COLLAGE_SETTINGS_PATH = fr'{SOFT_PATH}/settings/collage_settings.json'
 
-with open(BASE_SETTINGS_PATH, encoding='utf-8') as json_file:
-    BASE_SETTINGS = json.load(json_file)
+with open(MAIN_SETTINGS_PATH, encoding='utf-8') as json_file:
+    MAIN_SETTINGS = json.load(json_file)
 
 with open(COLLAGE_SETTINGS_PATH, encoding='utf-8') as json_file:
     COLLAGE_SETTINGS = json.load(json_file)
@@ -30,7 +30,7 @@ SETTINGS_VALIDATE = {
     'logo': validate_bool
 }
 
-BASE_SETTINGS_DEFAULTS = {
+MAIN_SETTINGS_DEFAULTS = {
     "username": None,
     "time": None,
     "delay": 2,

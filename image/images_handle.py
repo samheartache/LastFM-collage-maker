@@ -17,7 +17,7 @@ from utils.selenium import initialize_driver
 from utils.files import make_path_valid
 from utils.utils import remove_similar_strings
 
-from settings.settings_data import BASE_SETTINGS, SOFT_PATH
+from settings.settings_data import MAIN_SETTINGS, SOFT_PATH
 
 LASTFM_UNKNOWN_PATH = fr'{SOFT_PATH}/image/lastfm_unknown.jpg'
 
@@ -58,11 +58,11 @@ def remove_similar(images_path: str, similarity_percent: int) -> None:
 def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=False, scale=True, numerate=False):
         if (not collage_path.endswith('.jpg')) and (not collage_path.endswith('.png')):
             collage_path += '.jpg'
-        default_collage_dir = BASE_SETTINGS['default collage directory']
+        default_collage_dir = MAIN_SETTINGS['default collage directory']
 
         if default_collage_dir:
             os.makedirs(default_collage_dir, exist_ok=True)
-            collage_path = os.path.join(BASE_SETTINGS['default collage directory'], collage_path)
+            collage_path = os.path.join(MAIN_SETTINGS['default collage directory'], collage_path)
 
         images = [os.path.join(images_path, filename) for filename in os.listdir(images_path)]
         
