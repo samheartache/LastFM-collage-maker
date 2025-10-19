@@ -44,7 +44,11 @@
     ```bash
     source .venv/bin/activate
     ```
-3. Run the **main.py** script
+3. Install all dependencies
+   ```
+   pip install -r requirements.txt
+   ```
+4. Run the **main.py** script
 
     ### Windows:
 
@@ -58,7 +62,7 @@
     python3 main.py
     ```
 
-4. ### Only available on Linux now:
+5. ### Only available on Linux now:
    
    You can run **install.sh** script and then you'll be able to launch the software from anywhere just by typing "**lastfm**" in your terminal instead of running main.py script everytime.
     #### Note: before doing it make sure that you named your virtual environment exactly "**.venv**"
