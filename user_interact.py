@@ -148,11 +148,11 @@ def process_collage(collage_path=None, covers_dir=None, collage_size=None):
     else:
         margin = s_margin
     
-    s_scale = COLLAGE_SETTINGS['scale center']
-    if s_scale is None:
-        scale = process_setting_value(get_valid_input(value='your choice', enter_message='Scale images to the center to avoid image distortion? (y/n)', validation_func=validate_yn))
+    s_crop = COLLAGE_SETTINGS['crop to fit']
+    if s_crop is None:
+        crop = process_setting_value(get_valid_input(value='your choice', enter_message='crop images to the center to avoid image distortion? (y/n)', validation_func=validate_yn))
     else:
-        scale = s_scale
+        crop = s_crop
     
     if collage_path is None:
         auto_collage = MAIN_SETTINGS['auto name collage file']
@@ -172,12 +172,12 @@ def process_collage(collage_path=None, covers_dir=None, collage_size=None):
         else:
             covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name where your images are saved: '))
 
-    make_collage(collage_path=collage_path, images_path=covers_dir, collage_size=collage_size, margin=margin, scale=scale)
+    make_collage(collage_path=collage_path, images_path=covers_dir, collage_size=collage_size, margin=margin, crop=crop)
     print(Colorate.Vertical(Colors.green_to_white, f'Your collage is done and saved as "{collage_path}"'))
 
     numerate = COLLAGE_SETTINGS['create numerate collage']
     if numerate:
-        make_collage(collage_path=f'num - {collage_path}', images_path=covers_dir, collage_size=collage_size, margin=margin, scale=scale, numerate=True)
+        make_collage(collage_path=f'num - {collage_path}', images_path=covers_dir, collage_size=collage_size, margin=margin, crop=crop, numerate=True)
         print(Colorate.Vertical(Colors.green_to_white, f'Collage with numerate images is done and saved as "num - {collage_path}"'))
     
     change_choice = COLLAGE_SETTINGS['ask about changing the collage']

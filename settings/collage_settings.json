@@ -2,6 +2,6 @@
     "collage size": 1200,
     "margin": 0,
     "create numerate collage": true,
-    "scale center": true,
+    "crop to fit": true,
     "ask about changing the collage": true
 }

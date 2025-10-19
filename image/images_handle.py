@@ -55,7 +55,7 @@ def remove_similar(images_path: str, similarity_percent: int) -> None:
         os.remove(path=image_path)
 
 
-def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=False, scale=True, numerate=False):
+def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=False, crop=True, numerate=False):
         if (not collage_path.endswith('.jpg')) and (not collage_path.endswith('.png')):
             collage_path += '.jpg'
         default_collage_dir = MAIN_SETTINGS['default collage directory']
@@ -87,8 +87,8 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
         y = margin
 
         for idx, img in enumerate(images, start=1):
-            if scale:
-                img = scale_center(img)
+            if crop:
+                img = crop_to_fit(img)
 
             img = img.resize((image_size, image_size), Image.LANCZOS)
 
@@ -117,7 +117,7 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
         collage_image.save(collage_path)
 
 
-def scale_center(img):
+def crop_to_fit(img):
     width, height = img.size
     new_side = min(width, height)
     left = (width - new_side) // 2
