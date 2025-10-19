@@ -49,6 +49,6 @@ COLLAGE_SETTINGS_DEFAULTS = {
     "collage size": 1200,
     "margin": 0,
     "create numerate collage": False,
-    "crop to fit": True,
+    "scale center": True,
     "ask about changing the collage": False
 }
