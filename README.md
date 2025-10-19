@@ -58,7 +58,9 @@
     python3 main.py
     ```
 
-4. You can run **install.sh** script and then you'll be able to launch the software from anywhere just by typing "**lastfm**" in your terminal instead of running main.py script everytime (**only available on Linux now**)
+4. ### Only available on Linux now:
+   
+   You can run **install.sh** script and then you'll be able to launch the software from anywhere just by typing "**lastfm**" in your terminal instead of running main.py script everytime.
     #### Note: before doing it make sure that you named your virtual environment exactly "**.venv**"
 
     - ### Run the install.sh script
@@ -74,7 +76,7 @@
 
 ## Guidance on the use
 
-Before using the software you should get your **Lastfm API key**. It is **FREE** and **everyone** can get it on [https://www.last.fm/api/account/create](https://www.last.fm/api/account/create)
+### Before using the software you should get your **Lastfm API key**. It is **FREE** and **everyone** can get it on [https://www.last.fm/api/account/create](https://www.last.fm/api/account/create)
 
 ### Here are the available functions from the main menu
 
@@ -107,7 +109,7 @@ All of the settings are divided into two categories: **main settings** and **col
     #### You can set time to "week", "month" or any number of days (for exaple 10, 14, 60)
 
 
-- **Delay** - number of seconds to stop for when downloading album covers that are not on [last.fm](last.fm), to avoid bot detection. (the delay is implementing **only when searching for missing covers**)
+- **Delay** - number of seconds to stop for when downloading album covers that are not on [last.fm](last.fm), to avoid bot detection. (the delay is implementing **only when searching for [missing covers](#search-for-missing-covers)**)
   
   The default 2 seconds setting can handle downloading a lot of images, but if you going to make for exaple "month" collage or any collage that contains a lot of covers, it is better for you to set this to at least 5 seconds.
 - **Timeout** - maximum time of waiting the response from [last.fm](last.fm) to download album cover. 
