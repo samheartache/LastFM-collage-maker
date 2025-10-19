@@ -74,7 +74,7 @@
 
 ## Guidance on the use
 
-### Before using the software you should get your **Lastfm API key**. It is **FREE** and **everyone** can get it on [https://www.last.fm/api/account/create](https://www.last.fm/api/account/create)
+Before using the software you should get your **Lastfm API key**. It is **FREE** and **everyone** can get it on [https://www.last.fm/api/account/create](https://www.last.fm/api/account/create)
 
 ### Here are the available functions from the main menu
 
@@ -109,17 +109,20 @@ All of the settings are divided into two categories: **main settings** and **col
 
 - **Delay** - number of seconds to stop for when downloading album covers that are not on [last.fm](last.fm), to avoid bot detection. (the delay is implementing **only when searching for missing covers**)
   
-    #### The default 2 seconds setting can handle downloading a lot of images, but if you going to make for exaple "month" collage or any collage that contains a lot of covers, it is better for you to set this to at least 5 seconds.
+  The default 2 seconds setting can handle downloading a lot of images, but if you going to make for exaple "month" collage or any collage that contains a lot of covers, it is better for you to set this to at least 5 seconds.
 - **Timeout** - maximum time of waiting the response from [last.fm](last.fm) to download album cover. 
-- **Default collage directory** - directory where all your collages are stored
-    #### By default it is just "Collages" so every collage will be saved in this directory. If it doesn't exist in the directory from where the software was launched it will be created. So you can just specify any other absolute path instead of it.
+- **Default collage directory** - directory where all your collages are stored.
+
+  By default it is just "Collages" so every collage will be saved in this directory. If it doesn't exist in the directory from where the software was launched it will be created. So you can just specify any other absolute path instead of it.
 - **Auto name image directory or collage file** - you can either set this to any name you want or just set this to true/false. If true the certain directory or file will be named with the date and time of creation the collage. If false you'l be asked how to name file/directory.
 - **Image direcrory or collage file suffix** - string that will be added to the name of your file/directory if it is autonamed with the date and time of creation.
 - **Delete omitted images** - possible options: true, false. Defines the need of deleting the images that was removed from the collage by their index. (false is recommended)
 - **Directory for the omitted images** - directory that will be created (if doesn't exist) for album covers that was removed from the collage by their index.
-    #### If you accidentally removed some cover from the collage, you can just move it to directory where all of the covers are stored and recreate the collage.
+  
+    If you accidentally removed some cover from the collage, you can just move it to directory where all of the covers are stored and recreate the collage.
 - **Logo** - possible options: 0, 1. 0 for small logo and 1 for big logo.
-    #### To make sure that logo will fit in your terminal leave the default 0 setting.
+  
+    To make sure that logo will fit in your terminal leave the default 0 setting.
 
 
 ### Collage settings
