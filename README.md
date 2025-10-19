@@ -1,7 +1,18 @@
 # Last FM Collage Maker
 
-**Last FM Collage Maker** is a software for generating album cover collages based on your recently listened albums from [last.fm](last.fm). The **main** feauture of this exact collage generator is that it **finds missing album covers**.
+**Last FM Collage Maker** is a software for generating album cover collages based on your recently listened albums from [last.fm](last.fm). The **main** feauture of this exact collage generator is that it [**finds missing album covers**](#search-for-missing-covers).
 
+## Navigation
+
+  - [Installation](#installation)
+  - [Guidance on the use](#guidance-on-the-use)
+  - [Settings](#settings)
+    - [Main settings](#main-settings)
+    - [Collage settings](#collage-settings)
+  - [Search for missing covers feature](#search-for-missing-covers)
+
+  
+---
 
 ## Installation
 
