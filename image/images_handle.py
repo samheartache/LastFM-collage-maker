@@ -79,9 +79,9 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
         cols = int(num_images ** 0.5)
         rows = math.ceil(num_images / cols)
 
-        thumb_size = collage_size // max(cols, rows)
+        image_size = collage_size // max(cols, rows)
 
-        collage_image = Image.new('RGB', (thumb_size * cols + (margin * (cols + 1)), thumb_size * rows + (margin * (rows + 1))), color='white')
+        collage_image = Image.new('RGB', (image_size * cols + (margin * (cols + 1)), image_size * rows + (margin * (rows + 1))), color='white')
 
         x = margin
         y = margin
@@ -90,11 +90,11 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
             if scale:
                 img = scale_center(img)
 
-            img = img.resize((thumb_size, thumb_size), Image.LANCZOS)
+            img = img.resize((image_size, image_size), Image.LANCZOS)
 
 
             if numerate:
-                font = ImageFont.load_default(size=(thumb_size // 8))
+                font = ImageFont.load_default(size=(image_size // 8))
                 draw = ImageDraw.Draw(img)
                 num_text = str(idx)
 
@@ -102,17 +102,17 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
                 text_box_w = text_box[2] - text_box[0] + 10
                 text_box_h = text_box[3] - text_box[1] + 10
 
-                pos = (thumb_size - text_box_w, thumb_size - text_box_h)
-                pos_text = (thumb_size - text_box_w + (int(text_box_w * 0.1)), thumb_size - text_box_h - (int(text_box_h * 0.1)))
+                pos = (image_size - text_box_w, image_size - text_box_h)
+                pos_text = (image_size - text_box_w + (int(text_box_w * 0.1)), image_size - text_box_h - (int(text_box_h * 0.1)))
 
                 draw.rectangle([pos, (pos[0] + text_box_w, pos[1] + text_box_h)], fill=(0, 0, 0))
                 draw.text(pos_text, num_text, font=font, fill=(255, 255, 255))
             
             collage_image.paste(img, (x, y))
-            x += thumb_size + margin
+            x += image_size + margin
             if idx % cols == 0:
                 x = margin
-                y += thumb_size + margin 
+                y += image_size + margin 
 
         collage_image.save(collage_path)
 
