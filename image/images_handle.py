@@ -2,6 +2,7 @@ import os
 import math
 import base64
 import time
+from re import split
 
 import requests
 from PIL import Image, ImageChops, ImageDraw, ImageFont
@@ -58,11 +59,9 @@ def remove_similar(images_path: str, similarity_percent: int) -> None:
 def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images_path='covers', similar_value=False, scale=True, numerate=False):
         if (not collage_path.endswith('.jpg')) and (not collage_path.endswith('.png')):
             collage_path += '.jpg'
-        default_collage_dir = MAIN_SETTINGS['default collage directory']
 
-        if default_collage_dir:
-            os.makedirs(default_collage_dir, exist_ok=True)
-            collage_path = os.path.join(MAIN_SETTINGS['default collage directory'], collage_path)
+        collage_dir = ''.join(split(r'[/\\]', rf'{collage_path}')[:-1])
+        os.makedirs(collage_dir, exist_ok=True)
 
         images = [os.path.join(images_path, filename) for filename in os.listdir(images_path)]
         
@@ -115,6 +114,11 @@ def make_collage(collage_path='collage.jpg', collage_size=1200, margin=0, images
                 y += image_size + margin 
 
         collage_image.save(collage_path)
+
+
+def show_image(path: str) -> None:
+    image = Image.open(path)
+    image.show()
 
 
 def scale_center(img):

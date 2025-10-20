@@ -1,6 +1,8 @@
 from pystyle import Colorate, Colors, Center
 
-from image.images_handle import fast_search_images, make_collage
+import os
+
+from image.images_handle import fast_search_images, make_collage, show_image
 from lastfm.lastfm import LastfmAPI
 from lastfm.lastfm import get_apikey
 
@@ -172,12 +174,20 @@ def process_collage(collage_path=None, covers_dir=None, collage_size=None):
         else:
             covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name where your images are saved: '))
 
+    default_collage_dir = MAIN_SETTINGS['default collage directory']
+    if default_collage_dir:
+            collage_path = os.path.join(default_collage_dir, collage_path)
+    
     make_collage(collage_path=collage_path, images_path=covers_dir, collage_size=collage_size, margin=margin, scale=scale)
+    show_image(path=collage_path)
+
     print(Colorate.Vertical(Colors.green_to_white, f'Your collage is done and saved as "{collage_path}"'))
 
     numerate = COLLAGE_SETTINGS['create numerate collage']
     if numerate:
         make_collage(collage_path=f'num - {collage_path}', images_path=covers_dir, collage_size=collage_size, margin=margin, scale=scale, numerate=True)
+        show_image(path=collage_path)
+
         print(Colorate.Vertical(Colors.green_to_white, f'Collage with numerate images is done and saved as "num - {collage_path}"'))
     
     change_choice = COLLAGE_SETTINGS['ask about changing the collage']
