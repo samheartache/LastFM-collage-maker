@@ -179,16 +179,18 @@ def process_collage(collage_path=None, covers_dir=None, collage_size=None):
             collage_path = os.path.join(default_collage_dir, collage_path)
     
     make_collage(collage_path=collage_path, images_path=covers_dir, collage_size=collage_size, margin=margin, scale=scale)
-    show_image(path=collage_path)
-
+    
     print(Colorate.Vertical(Colors.green_to_white, f'Your collage is done and saved as "{collage_path}"'))
 
     numerate = COLLAGE_SETTINGS['create numerate collage']
-    if numerate:
-        make_collage(collage_path=f'num - {collage_path}', images_path=covers_dir, collage_size=collage_size, margin=margin, scale=scale, numerate=True)
+    if not numerate:
         show_image(path=collage_path)
+    else:
+        numerate_collage_path = f'Num - {collage_path}'
+        make_collage(collage_path=numerate_collage_path, images_path=covers_dir, collage_size=collage_size, margin=margin, scale=scale, numerate=True)
+        show_image(path=numerate_collage_path)
 
-        print(Colorate.Vertical(Colors.green_to_white, f'Collage with numerate images is done and saved as "num - {collage_path}"'))
+        print(Colorate.Vertical(Colors.green_to_white, f'Collage with numerate images is done and saved in "Num - {collage_path}"'))
     
     change_choice = COLLAGE_SETTINGS['ask about changing the collage']
     if change_choice:
