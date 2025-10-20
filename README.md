@@ -162,7 +162,7 @@ Sometimes [last.fm](last.fm) doesn't have covers for rare albums, demos or anoth
 ### Note: 
 When your cover is downloaded its title will be displayed in the terminal as a log information like this:
 
-    [album title] ([download method])
+    <album title> (<download method>)
 
 Where download method can be either "**url**" or "**selenium**".
   - "**url**" - downloaded directly from [last.fm](last.fm)
