@@ -166,13 +166,7 @@ def process_collage(collage_path=None, covers_dir=None, collage_size=None):
             collage_path = get_valid_input('file name for the collage', validate_path)
 
     if covers_dir is None:
-        auto_dir = MAIN_SETTINGS['auto name image directory']
-        if isinstance(auto_dir, str):
-            covers_dir = auto_dir
-        elif auto_dir == True:
-            covers_dir = get_autoname(type=PathType.DIRECTORY, suffix=MAIN_SETTINGS['image directory suffix'])
-        else:
-            covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name where your images are saved: '))
+        covers_dir = input(Colorate.Horizontal(Colors.cyan_to_green, 'Enter directory name where your images are saved: '))
 
     default_collage_dir = MAIN_SETTINGS['default collage directory']
     if default_collage_dir:
