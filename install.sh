@@ -20,7 +20,7 @@ if [ ! -d "$INSTALL_DIR" ]; then
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PYTHON_SCRIPT="$SCRIPT_DIR/main.py"
+PYTHON_SCRIPT="$SCRIPT_DIR/src/main.py"
 
 if [ ! -f "$PYTHON_SCRIPT" ]; then
     echo "Error: main.py script not found"
@@ -38,7 +38,7 @@ cat > "$TEMP_SCRIPT" << 'EOF'
 #!/bin/bash
 
 SCRIPT_DIR="SCRIPT_DIR_PLACEHOLDER"
-MAIN_SCRIPT="$SCRIPT_DIR/main.py"
+MAIN_SCRIPT="$SCRIPT_DIR/src/main.py"
 VENV_PYTHON="$SCRIPT_DIR/.venv/bin/python"
 
 if [ ! -f "$VENV_PYTHON" ]; then

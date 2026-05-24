@@ -41,7 +41,7 @@ class LastfmAPI:
         try:
             recent_tracks = response_json['recenttracks']['track']
         except KeyError:
-            from user_interact import error_exit
+            from src.user_interact import error_exit
             
             error_exit(error_message=INCORRECT_MESSAGE)
 
